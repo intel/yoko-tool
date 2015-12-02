@@ -1,0 +1,95 @@
+# vim: ts=4 sw=4 tw=100 et ai si
+
+Yoko tool is a command-line tool for configuring and controlling Yokogawa power meters.
+
+It communicates with power meters using the USB interface (RS-232, Ethernet and GP-IB are not
+supported) and implements most of the functionalities of the WT310 power meter series except some
+very advanced and rarely used like harmonics.
+
+The command-line interface is based on subcommands. Each subcommand supports the "-h | --help"
+option which is meant to provide a quick help usage. Further detail and usage examples are available
+within the man page.
+
+
+Yoko tool communication path
+----------------------------
+
+Yokogawa power meters are part of the TMC (Test and Measurement Class) group of USB devices. The
+upstream Linux kernel embeds a standard driver called "usbtmc.ko" that creates a character device
+node for every attached TMC device. Yoko tool interacts with power meters via these device nodes.
+The protocol is very simple and is based on ASCII commands, for example:
+*IDN? - return serial number
+*CAL? - execute zero-level calibration
+*:INP:CURR:RANG 5 - set current range to be 0-5 amperes
+
+Please, refer to "WT310/WT310HC/WT330 Digital Power Meter Communication Interface User's Manual".
+
+The device node permissions can be configured in udev rules on Linux. Below is a procedure
+(source http://falsecolour.com/aw/computer/udev-usbtmc/index.html) to give read/write access to a
+specific user on any device node, that is, from #0 to #9.
+
+1. Create a group called "usbtmc":
+   $ groupadd usbtmc
+
+2. Add a user to it (log out/log in again for this change to take effect):
+   $ gpasswd -a <user> usbtmc
+
+3. Edit a udev rules file (below is an example on a Debian system):
+   /etc/udev/rules.d/51-usbtmc.rules
+
+4. Add the following contents to the udev rules file:
+   # this is the general rule that covers usbtmc devices
+   KERNEL=="usbtmc/*", MODE="0666", GROUP="usbtmc"
+   KERNEL=="usbtmc[0-9]", MODE="0666", GROUP="usbtmc"
+
+
+Yoko tool libraries
+-------------------
+
+transport.py abstracts out the power meter's communication interface details.
+
+PowerMeter.py implements the base power meter class, agnostic to the specific power meter model.
+
+WT310.py implements the Yokogawa WT310 power meter support.
+
+
+Yoko tool coding style guidelines
+---------------------------------
+
+Besides our will to comply as much as possible with Python's coding style guidelines (i.e. PEPs -
+Python Enhancement Proposals), we came up with the rules below, which are meant to be simple and
+ease source code readability.
+
+- Although PEP 0008 "Style Guide for Python Code" recommends "it is okay to increase the nominal
+line length from 80 to 100 characters [...] provided that comments and docstrings are still wrapped
+at 72 characters.", we're adopting a standard line length of 100 characters for everything from
+source code to docstrings and comments. Pylint can be configured accordingly by adding
+"max-line-length=100" to one's .pylintrc file.
+
+- Although PEP 257 "Docstring Conventions" recommends "There's no blank line either before or after
+the (one-line) docstring.", we go for adding one blank line after every docstrings, except when the
+function or class has only 1 line of code. Comments are not counted as code.
+Example: class Error(Exception):
+         """A class for exceptions we generate."""
+         # We do nothing
+         pass
+
+         def drop_client(client, socket_fobj):
+         """This is a helper function which closes the client connection and restores the logger."""
+
+         setup_logger(log, logging.INFO)
+         client.close()
+         socket_fobj.close()
+
+- Always use simple quotes in both docstrings and comments, except if we quote a string which
+quotes a string.
+Example: the 'devnode'
+         "invalid command 'integation'"
+
+- Never use a period to end a sentence in comments, except if we used some other punctuation.
+Example: # This data structure describes the 'integration' command
+         # Prefix with green-colored time-stamp, module name and line number.
+
+- Docstrings are likely to be extracted to constitute the documentation of a Python project, so
+let's apply the usual English writing and punctuation usage guidelines there.
+
