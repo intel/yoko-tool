@@ -372,23 +372,23 @@ class PowerMeter(object):
             try:
                 response = self._query(sent_cmd)
             except transport.Error as err:
-                raise Error("sent command \"%s\" but failed to read the response from %s: %s"
-                            % (sent_cmd, self._transport, err))
+                raise Error("sent command \"%s\" but failed to read the power meter's response:\n%s"
+                            % (sent_cmd.lstrip(), err))
 
             response = self._apply_response_tweaks(cmd, response)
         else:
             try:
                 self._transport.write(sent_cmd + "\n")
             except transport.Error as err:
-                raise Error("failed to write command \"%s\" to %s: %s"
-                            % (sent_cmd, self._transport, err))
+                raise Error("failed to write command \"%s\" to the power meter:\n%s"
+                            % (sent_cmd.lstrip(), err))
             response = None
 
         # Read and check the status
         raw_cmd = self._command_map["get-error-status"]
         status = self._query(raw_cmd)
         if status.split(',')[0] != '0':
-            raise Error("command \"%s\" failed: %s" % (sent_cmd, status))
+            raise Error("command \"%s\" failed:\n%s" % (sent_cmd.lstrip(), status))
 
         return response
 
