@@ -265,6 +265,11 @@ CMDLINE_COMMANDS = {
         "help"  : "switch smoothing on or off",
         "descr" : "Switch smoothing on or off.",
     },
+    "smoothing" : {
+        "help"  : "get or set a smoothing property",
+        "descr" : """Get or set a smoothing property like the status, type or factor.
+                     Please, refer to the man page for more information.""",
+    },
     "calibrate" : {
         "help"  : "execute zero-level compensation",
         "descr" : "Execute zero-level compensation.",
