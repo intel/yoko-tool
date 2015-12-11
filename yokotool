@@ -804,6 +804,18 @@ def smoothing_command(meter):
 
         log.info(meter.command("get-smoothing-status"))
 
+    if args.subcmd["name"] == "type":
+        args_list = meter.get_argument_help("set-smoothing-type")
+        if str(args.value) in args_list:
+            meter.command("set-smoothing-type", args.value)
+            return
+        elif args.value != None:
+            raise PowerMeter.ErrorBadArgument(args.value, args_list)
+
+        log.info(meter.command("get-smoothing-type"))
+
+
+
 def integ_command(meter):
     """This function implements the 'integration' command-line subcommand."""
 
