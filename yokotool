@@ -207,6 +207,32 @@ PROPERTIES = (
     },
 )
 
+# This data-structure describes the 'smoothing' command and the properties it support
+#    * name   : name of the property to get or change
+#    * get-cmd: power meter's command to get the property
+#    * set-cmd: power meter's command to set the property
+#    * help   : short/one line property description
+SMOOTHING_PROPERTIES = (
+    {
+        "name"     : "status",
+        "get-cmd"  : "get-smoothing",
+        "set-cmd"  : "set-smoothing",
+        "help"     : "smoothing status",
+    },
+    {
+        "name"     : "type",
+        "get-cmd"  : "get-smoothing-type",
+        "set-cmd"  : "set-smoothing-type",
+        "help"     : "smoothing type",
+    },
+    {
+        "name"     : "factor",
+        "get-cmd"  : "get-smoothing-factor",
+        "set-cmd"  : "set-smoothing-factor",
+        "help"     : "moving average window/attenuation constant",
+    },
+)
+
 #
 # The command-line commands supported by this tool
 #
