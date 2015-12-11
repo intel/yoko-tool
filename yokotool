@@ -814,6 +814,15 @@ def smoothing_command(meter):
 
         log.info(meter.command("get-smoothing-type"))
 
+    if args.subcmd["name"] == "factor":
+        args_list = meter.get_argument_help("set-smoothing-factor")
+        if str(args.value) in args_list:
+            meter.command("set-smoothing-factor", args.value)
+            return
+        elif args.value != None:
+            raise PowerMeter.ErrorBadArgument(args.value, args_list)
+
+        log.info(meter.command("get-smoothing-factor"))
 
 
 def integ_command(meter):
