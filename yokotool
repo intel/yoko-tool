@@ -142,24 +142,6 @@ PROPERTIES = (
         "help"     : "crest factor",
     },
     {
-        "name"     : "smoothing",
-        "get-cmd"  : "get-smoothing",
-        "set-cmd"  : "set-smoothing",
-        "help"     : "smoothing status",
-    },
-    {
-        "name"     : "smoothing-type",
-        "get-cmd"  : "get-smoothing-type",
-        "set-cmd"  : "set-smoothing-type",
-        "help"     : "smoothing type",
-    },
-    {
-        "name"     : "smoothing-factor",
-        "get-cmd"  : "get-smoothing-factor",
-        "set-cmd"  : "set-smoothing-factor",
-        "help"     : "moving average window/attenuation constant",
-    },
-    {
         "name"     : "integration-state",
         "get-cmd"  : "get-integration-state",
         "help"     : "integration state",
@@ -260,10 +242,6 @@ CMDLINE_COMMANDS = {
         "help"  : "integration-related commands",
         "descr" : """This command controls the integration feature of the power meter.
                      Please, refer to the man page for more information.""",
-    },
-    "smoothing" : {
-        "help"  : "switch smoothing on or off",
-        "descr" : "Switch smoothing on or off.",
     },
     "smoothing" : {
         "help"  : "get or set a smoothing property",
@@ -492,15 +470,6 @@ def parse_arguments():
         else:
             pars2.set_defaults(action=subcmd)
             pars2.set_defaults(func=integ_command)
-
-    #
-    # Create a parser for the 'smoothing' command
-    #
-    pars1 = subpars.add_parser("smoothing", help=allcmds["smoothing"]["help"],
-                               description=allcmds["smoothing"]["descr"])
-
-    pars1.set_defaults(func=smoothing_command)
-    pars1.add_argument("value", metavar="on|off", help=allcmds["smoothing"]["help"])
 
     #
     # Create a parser for the 'smoothing' command
