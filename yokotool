@@ -794,10 +794,15 @@ def integration_wait_subcommand(meter, arg): # pylint: disable=unused-argument
 def smoothing_command(meter):
     """This function implements the 'smoothing' command."""
 
-    if args.value == "?":
-        log.info("%s", meter.get_argument_help("set-smoothing"))
-    else:
-        meter.command("set-smoothing", args.value)
+    if args.subcmd["name"] == "status":
+        args_list = meter.get_argument_help("set-smoothing-status")
+        if str(args.value) in args_list:
+            meter.command("set-smoothing-status", args.value)
+            return
+        elif args.value != None:
+            raise PowerMeter.ErrorBadArgument(args.value, args_list)
+
+        log.info(meter.command("get-smoothing-status"))
 
 def integ_command(meter):
     """This function implements the 'integration' command-line subcommand."""
