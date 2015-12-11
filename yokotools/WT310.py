@@ -293,8 +293,8 @@ _WT310_COMMANDS = {
     ':INP:CFAC?': 'get-crest-factor',
     ':INP:CFAC': 'set-crest-factor',
     ':INP:WIR?': 'get-wiring-system',
-    ':MEAS:AVER:STATE?': 'get-smoothing',
-    ':MEAS:AVER:STATE': 'set-smoothing',
+    ':MEAS:AVER:STATE?': 'get-smoothing-status',
+    ':MEAS:AVER:STATE': 'set-smoothing-status',
     ':MEAS:AVER:TYPE?': 'get-smoothing-type',
     ':MEAS:AVER:TYPE': 'set-smoothing-type',
     ':MEAS:AVER:COUN?': 'get-smoothing-factor',
@@ -489,7 +489,7 @@ class WT310(PowerMeter.PowerMeter):
             "set-freq-filter" : {
                 "assortment" : PowerMeter.ON_OFF_RANGE,
             },
-            "set-smoothing" : {
+            "set-smoothing-status" : {
                 "assortment" : PowerMeter.ON_OFF_RANGE,
             },
             "set-smoothing-type" : {
@@ -622,7 +622,7 @@ class WT310(PowerMeter.PowerMeter):
             "get-freq-filter" : {
                 "response-tweaks" : (_on_off_tweak, ),
             },
-            "get-smoothing" : {
+            "get-smoothing-status" : {
                 "response-tweaks" : (_on_off_tweak, ),
             },
             "get-smoothing-type" : {

@@ -155,11 +155,11 @@ _COMMANDS = {
         "has-response" : False,
         "has-argument" : True,
     },
-    "get-smoothing" : {
+    "get-smoothing-status" : {
         "has-response" : True,
         "has-argument" : False,
     },
-    "set-smoothing" : {
+    "set-smoothing-status" : {
         "has-response" : False,
         "has-argument" : True,
     },

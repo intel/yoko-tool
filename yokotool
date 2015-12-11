@@ -215,8 +215,8 @@ PROPERTIES = (
 SMOOTHING_PROPERTIES = (
     {
         "name"     : "status",
-        "get-cmd"  : "get-smoothing",
-        "set-cmd"  : "set-smoothing",
+        "get-cmd"  : "get-smoothing-status",
+        "set-cmd"  : "set-smoothing-status",
         "help"     : "smoothing status",
     },
     {
