@@ -500,6 +500,23 @@ def parse_arguments():
     pars1.add_argument("value", metavar="on|off", help=allcmds["smoothing"]["help"])
 
     #
+    # Create a parser for the 'smoothing' command
+    #
+    pars1 = subpars.add_parser("smoothing", help=allcmds["smoothing"]["help"],
+                               description=allcmds["smoothing"]["descr"])
+    subpars1 = pars1.add_subparsers(title="properties", metavar="")
+
+    # Add 'smoothing' properties
+    for subcmd in SMOOTHING_PROPERTIES:
+        descr = "Get the smoothing %s or set its value using the optional parameter." % subcmd["name"]
+        pars2 = subpars1.add_parser(subcmd["name"], help=subcmd["help"],
+                                    description=descr)
+        pars2.set_defaults(subcmd=subcmd)
+        pars2.set_defaults(func=smoothing_command)
+        text = "the value to assign to \"smoothing %s\"" % subcmd["name"]
+        pars2.add_argument("-v", "--value", help=text)
+
+    #
     # Create a parser for the 'calibrate' command
     #
     pars1 = subpars.add_parser("calibrate", help=allcmds["calibrate"]["help"],
