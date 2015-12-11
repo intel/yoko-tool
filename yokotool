@@ -396,6 +396,9 @@ def get_subcmds_help(cmd):
         for item in PROPERTIES:
             if "%s-cmd" % cmd in item:
                 subcmds.append(item["name"])
+    elif cmd == "smoothing":
+        for item in SMOOTHING_PROPERTIES:
+           subcmds.append(item["name"])
 
     return ", ".join(subcmds)
 
@@ -543,7 +546,7 @@ def parse_arguments():
 
     if sys.argv[-1] == "?":
         cmd = sys.argv[-2]
-        if cmd in ("get", "set", "integration"):
+        if cmd in ("get", "set", "integration", "smoothing"):
             log.info("%s", get_subcmds_help(cmd))
             raise SystemExit(0)
 
