@@ -16,8 +16,6 @@ Productization
 - Review/improve commands:
   * Remove "current-auto-range" sub-command, just use "current-range auto" instead. Same for the
     "get" and "voltage" parts.
-  * Move all smoothing commands under "smoothing" (instead of splitting it among other commands like
-    "set" and "get").
   * Move all integration commands under "integration" (instead of splitting it among other commands
     like "set" and "get").
   * Add a check that integration timer must be > 0 if the integration mode is "continuous" (check

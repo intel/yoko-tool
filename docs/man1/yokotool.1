@@ -260,36 +260,51 @@ Read watt-hours and apere-hours until integration timer fires up
 .RE
 
 .RS
-.B smoothing ARGUMENT
+.B smoothing PROPERTY [VALUE]
 .RS
-Switch smoothing on or off.
-
 Smoothing is useful when measurement data fluctuates too much, and becomes
 difficult to read or follow. This feature is referred to as \fBaveraging\fP in
 the user manual of Yokogawa WT300 power meter series.
 
-The list of smoothing arguments can also be displayed with \fB?\fP:
+The power meter supports 3 smoothing properties:
+
+- The smoothing \fBstatus\fP specifies if smoothing is switched \fBon\fP or
+\fBoff\fP. When smoothing is switched on, the measured electrical quantity
+is in fact a computed average value.
+
+- The smoothing \fBtype\fP can be set to \fBlinear\fP or \fBexponential\fP. This
+setting influences how smoothing is computed.
+
+- The smoothing \fBfactor\fP can be \fB8, 16, 32, 64\fP. When \fBlinear\fP
+smoothing type is set, then \fBfactor\fP configures the number of elements to
+use for calculating the running average value (i.e. the averaging \fBwindow\fP
+length). When \fBexponential\fP smoothing type is set, then \fBfactor\fP
+defines the \fBattenuation constant\fP. And the larger the constant is, the
+\fBsmoother\fP the measurement results are.
+
+The list of smoothing properties can be displayed with \fB?\fP:
 .nf
 $ yokotool <devnode> smoothing ?
 .fi
 
-
-The power meter supports 2 types of smoothing:
-
-- When \fBlinear\fP smoothing is set, then \fBset smoothing-factor\fP command
-configures the number of elements to use for calculating the running average
-value (i.e. the averaging \fBwindow\fP length).
-
-- When \fBexponential\fP smoothing is set, then \fBset smoothing-factor\fP
-command defines the \fBattenuation constant\fP. And the larger the constant is,
-the \fBsmoother\fP the measurement results are.
-
-To select the type of smoothing, use \fBset smoothing-type\fP command.
+The list of values for a smoothing property can also be displayed with \fB?\fP:
+.nf
+$ yokotool <devnode> smoothing ?
+.fi
 
 .nf
 Usage examples:
-$ yokotool <devnode> smoothing on
+$ yokotool <devnode> smoothing status
+Get smoothing status
+
+$ yokotool <devnode> smoothing status on
 Enable smoothing
+
+$ yokotool <devnode> smoothing type exponent
+Get smoothing type to exponential
+
+$ yokotool <devnode> smoothing factor
+Get smoothing factor
 .fi
 .RE
 .RE
