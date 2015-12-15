@@ -480,13 +480,12 @@ def parse_arguments():
 
     # Add 'smoothing' properties
     for subcmd in SMOOTHING_PROPERTIES:
-        descr = \
-        "Get the smoothing %s or set its value using the optional parameter." % subcmd["name"]
+        descr = "Get or set the smoothing %s." % subcmd["name"]
         pars2 = subpars1.add_parser(subcmd["name"], help=subcmd["help"], description=descr)
         pars2.set_defaults(subcmd=subcmd)
         pars2.set_defaults(func=smoothing_command)
         text = "the value to assign to \"smoothing %s\"" % subcmd["name"]
-        pars2.add_argument("-v", "--value", help=text)
+        pars2.add_argument("value", nargs="?", default=None, help=text)
 
     #
     # Create a parser for the 'calibrate' command
@@ -763,14 +762,14 @@ def integration_wait_subcommand(meter, arg): # pylint: disable=unused-argument
 def smoothing_command(meter):
     """This function implements the 'smoothing' command."""
 
-    args_list = meter.get_argument_help(args.subcmd["set-cmd"])
-    if str(args.value) in args_list:
-        meter.command(args.subcmd["set-cmd"], args.value)
-        return
-    elif args.value != None:
-        raise PowerMeter.ErrorBadArgument(args.value, args_list)
-
-    log.info(meter.command(args.subcmd["get-cmd"]))
+    if args.value == None:
+        log.info(meter.command(args.subcmd["get-cmd"]))
+    else:
+        args_list = meter.get_argument_help(args.subcmd["set-cmd"])
+        if args.value in args_list:
+            meter.command(args.subcmd["set-cmd"], args.value)
+        else:
+            raise PowerMeter.ErrorBadArgument(args.value, args_list)
 
 def integ_command(meter):
     """This function implements the 'integration' command-line subcommand."""
