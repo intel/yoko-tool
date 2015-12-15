@@ -766,7 +766,9 @@ def smoothing_command(meter):
         log.info(meter.command(args.subcmd["get-cmd"]))
     else:
         args_list = meter.get_argument_help(args.subcmd["set-cmd"])
-        if args.value in args_list:
+        if args.value == "?":
+           log.info("%s", meter.get_argument_help(args.subcmd["set-cmd"]))
+        elif args.value in args_list:
             meter.command(args.subcmd["set-cmd"], args.value)
         else:
             raise PowerMeter.ErrorBadArgument(args.value, args_list)
