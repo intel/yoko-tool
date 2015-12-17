@@ -1,0 +1,898 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# vim: ts=4 sw=4 tw=100 et ai si
+#
+# Copyright (c) 2013-2015 Intel, Inc.
+# License: GPLv2
+# Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+
+"""
+A tool for controlling the Yokogawa WT310 power meter over the USB interface.
+
+The following features are not currently supported and this tool assumes that they are set to the
+factory default settings or disabled: D/A and harmonics measurement stuff, selection of valid
+ranges, selecting of over-range jumps, external sensor, scaling, etc. The following features are
+also not supported: display parameters changing, getting peak over-range information, etc.
+
+The Ethernet, RS-232 and GP-IB interfaces are not supported either.
+"""
+
+# pylint: disable=too-few-public-methods
+# pylint: disable=invalid-name
+# pylint: disable=global-statement
+
+from __future__ import print_function
+import os
+import sys
+import time
+import socket
+import logging
+import argparse
+from collections import namedtuple
+
+from yokotools import WT310, PowerMeter, transport
+
+VERSION = "1.0"
+
+class Error(Exception):
+    """A class for exceptions we generate."""
+    pass
+
+log = logging.getLogger()
+args = None
+
+# Esc-sequences for colored output
+# pylint: disable=anomalous-backslash-in-string
+ESC_RED = '\033[91m'
+ESC_YELLOW = '\033[93m'
+ESC_GREEN = '\033[92m'
+ESC_END = '\033[0m'
+ESC_BRIGHT_WHITE = '\033[97m'
+# pylint: enable=anomalous-backslash-in-string
+
+# This data-structure describes the 'get' and 'set' commands and the properties they support
+#    * name   : name of the property to get or change
+#    * get-cmd: power meter's command to get the property
+#    * set-cmd: power meter's command to set the property
+#    * help   : short/one line property description
+PROPERTIES = (
+    {
+        "name"     : "id",
+        "get-cmd"  : "get-id",
+        "help"     : "identification string",
+    },
+    {
+        "name"     : "installed-opts",
+        "get-cmd"  : "get-installed-opts",
+        "help"     : "installed options",
+    },
+    {
+        "name"     : "interval",
+        "get-cmd"  : "get-interval",
+        "set-cmd"  : "set-interval",
+        "help"     : "data update interval (seconds)",
+    },
+    {
+        "name"     : "current-range",
+        "get-cmd"  : "get-current-range",
+        "set-cmd"  : "set-current-range",
+        "help"     : "current range (amperes)",
+    },
+    {
+        "name"     : "voltage-range",
+        "get-cmd"  : "get-voltage-range",
+        "set-cmd"  : "set-voltage-range",
+        "help"     : "voltage range (volts)",
+    },
+    {
+        "name"     : "current-auto-range",
+        "get-cmd"  : "get-current-auto-range",
+        "set-cmd"  : "set-current-auto-range",
+        "help"     : "current auto-ranging status",
+    },
+    {
+        "name"     : "voltage-auto-range",
+        "get-cmd"  : "get-voltage-auto-range",
+        "set-cmd"  : "set-voltage-auto-range",
+        "help"     : "voltage auto-ranging status",
+    },
+    {
+        "name"     : "measurement-mode",
+        "get-cmd"  : "get-measurement-mode",
+        "set-cmd"  : "set-measurement-mode",
+        "help"     : "measurement mode",
+    },
+    {
+        "name"     : "math",
+        "get-cmd"  : "get-math",
+        "set-cmd"  : "set-math",
+        "help"     : "computation function",
+    },
+    {
+        "name"     : "sync-source",
+        "get-cmd"  : "get-sync-source",
+        "set-cmd"  : "set-sync-source",
+        "help"     : "synchronization source",
+    },
+    {
+        "name"     : "line-filter",
+        "get-cmd"  : "get-line-filter",
+        "set-cmd"  : "set-line-filter",
+        "help"     : "line filter status",
+    },
+    {
+        "name"     : "freq-filter",
+        "get-cmd"  : "get-freq-filter",
+        "set-cmd"  : "set-freq-filter",
+        "help"     : "frequency filter status",
+    },
+    {
+        "name"     : "crest-factor",
+        "get-cmd"  : "get-crest-factor",
+        "set-cmd"  : "set-crest-factor",
+        "help"     : "crest factor",
+    },
+    {
+        "name"     : "smoothing",
+        "get-cmd"  : "get-smoothing",
+        "set-cmd"  : "set-smoothing",
+        "help"     : "smoothing status",
+    },
+    {
+        "name"     : "smoothing-type",
+        "get-cmd"  : "get-smoothing-type",
+        "set-cmd"  : "set-smoothing-type",
+        "help"     : "smoothing type",
+    },
+    {
+        "name"     : "smoothing-factor",
+        "get-cmd"  : "get-smoothing-factor",
+        "set-cmd"  : "set-smoothing-factor",
+        "help"     : "moving average window/attenuation constant",
+    },
+    {
+        "name"     : "integration-state",
+        "get-cmd"  : "get-integration-state",
+        "help"     : "integration state",
+    },
+    {
+        "name"     : "integration-mode",
+        "get-cmd"  : "get-integration-mode",
+        "set-cmd"  : "set-integration-mode",
+        "help"     : "integration mode",
+    },
+    {
+        "name"     : "integration-timer",
+        "get-cmd"  : "get-integration-timer",
+        "set-cmd"  : "set-integration-timer",
+        "help"     : "integration timer value",
+    },
+    {
+        "name"     : "hold",
+        "get-cmd"  : "get-hold",
+        "set-cmd"  : "set-hold",
+        "help"     : "\"Hold\" key status",
+    },
+    {
+        "name"     : "max-hold",
+        "get-cmd"  : "get-max-hold",
+        "set-cmd"  : "set-max-hold",
+        "help"     : "\"Max hold\" key status",
+    },
+    {
+        "name"     : "keys-locking",
+        "get-cmd"  : "get-keys-locking",
+        "set-cmd"  : "set-keys-locking",
+        "help"     : "keys locking status",
+    },
+    {
+        "name"     : "remote-mode",
+        "get-cmd"  : "get-remote-mode",
+        "set-cmd"  : "set-remote-mode",
+        "help"     : "remote mode status",
+    },
+    {
+        "name"     : "wiring-system",
+        "get-cmd"  : "get-wiring-system",
+        "help"     : "wiring system",
+    },
+)
+
+#
+# The command-line commands supported by this tool
+#
+CMDLINE_COMMANDS = {
+    "info" : {
+        "help"  : "print information about the power meter",
+        "descr" : "Print information about the power meter.",
+    },
+    "read" : {
+        "help"  : "read measurement data",
+        "descr" : """Read measurement data like power (P) or current (I).
+                     Please, refer to the man page for more information.""",
+    },
+    "get" : {
+        "help"  : "get an individual power meter property",
+        "descr" : """Get a power meter property like the voltage range, etc.
+                     Please, refer to the man page for more information.""",
+    },
+    "set" : {
+        "help"  : "set an individual power meter property",
+        "descr" : """Set a power meter property like the voltage range, etc.
+                     Please, refer to the man page for more information.""",
+    },
+    "integration" : {
+        "help"  : "integration-related commands",
+        "descr" : """This command controls the integration feature of the power meter.
+                     Please, refer to the man page for more information.""",
+    },
+    "smoothing" : {
+        "help"  : "switch smoothing on or off",
+        "descr" : "Switch smoothing on or off.",
+    },
+    "calibrate" : {
+        "help"  : "execute zero-level compensation",
+        "descr" : "Execute zero-level compensation.",
+    },
+    "factory-reset" : {
+        "help"  : "reset to factory settings",
+        "descr" : "Reset the power meter to factory settings.",
+    },
+    "listen" : {
+        "help"  : "listen for commands on a TCP port",
+        "descr" : """This command switches yokotool to the server mode so that it listens for
+                     commands on a TCP socket.
+                     Please, refer to the man page for more information.""",
+    },
+}
+
+# This data structure describes the 'integration' command
+#    * name   : name of command
+#    * command: corresponding power meter's command (if any)
+#    * help   : short/one line property description
+INTEGRATION_SUBCOMMANDS = (
+    {
+        "name"    : "wait",
+        "command" : "start-integration",
+        "help"    : "wait for integration to finish",
+        "descr"   : "Wait for integration to finish.",
+    },
+    {
+        "name"    : "start",
+        "command" : "start-integration",
+        "help"    : "start integration",
+        "descr"   : "Start integration.",
+    },
+    {
+        "name"    : "stop",
+        "command" : "stop-integration",
+        "help"    : "stop integration",
+        "descr"   : "Stop integration.",
+    },
+    {
+        "name"    : "reset",
+        "command" : "reset-integration",
+        "help"    : "reset integration",
+        "descr"   : "Reset integration.",
+    },
+    {
+        "name"    : "state",
+        "command" : "get-integration-state",
+        "help"    : "get integration state",
+        "descr"   : "Get integration state.",
+    },
+)
+
+class MyArgsParser(argparse.ArgumentParser):
+    """
+    This class re-defines the error method of the 'argparse.ArgumentParser' class in order to make
+    it throw an exception rather than exiting.
+    """
+
+    def error(self, message):
+        """Print the error message and exit."""
+        raise Error("%s, %s" % (message, "-h for help"))
+
+def fetch_devnode():
+    """
+    The first command line argument is usually the power meter device node. But sometimes the device
+    node is not required, for example when using '-h' option.
+
+    This function tries to figure out whether the user specified the power meter device node or not.
+    """
+
+    # Find the first non-option and non-command
+    index = None
+    devnode = None
+    for idx, arg in enumerate(sys.argv[1:]):
+        if arg.startswith("-"):
+            continue
+        if not arg in CMDLINE_COMMANDS.keys():
+            devnode = arg
+            index = idx + 1
+        break
+
+    if not devnode:
+        return None
+
+    # Now we have a device node candidate in 'devnode', because it is not an option nor a supported
+    # command.
+    #
+    # But there is another problem: if user did not mean to specify a device node at all and made a
+    # typo in the command, the 'devnode' will contain this bogus command (e.g., 'integation' instead
+    # of 'integration'). Later on we'd try to open 'devnode', we'd fail and print a misleading error
+    # message: "cannot open 'integation'" instead of "invalid command 'integation'".
+    #
+    # So let's try to be a bit smart here and first check if there is a valid command in the command
+    # line after the 'devnode' candidate. If so, then the user did meant to specify device node.
+    for arg in sys.argv[index+1:]:
+        if arg.startswith("-"):
+            continue
+        if arg in CMDLINE_COMMANDS.keys():
+            del sys.argv[index]
+            return devnode
+        break
+
+    # Let's try another heuristic - if the 'devnode' candidate exists on the file-system or if it
+    # includes a path separator like '/', then this must be a device node. Otherwise this is
+    # probably a bogus command.
+    if os.path.exists(devnode) or "/" in devnode:
+        del sys.argv[index]
+        return devnode
+
+    return None
+
+def get_subcmds_help(cmd):
+    """
+    Return a user-friendly help message listing the possible subcommands for 'cmd'. For example, it
+    returns 'wait, start, stop, reset, state' for 'integration' command.
+    """
+
+    subcmds = []
+    if cmd == "integration":
+        for item in INTEGRATION_SUBCOMMANDS:
+            subcmds.append(item["name"])
+    elif cmd in ("get", "set"):
+        for item in PROPERTIES:
+            if "%s-cmd" % cmd in item:
+                subcmds.append(item["name"])
+
+    return ", ".join(subcmds)
+
+def parse_arguments():
+    """A helper function which parses the input arguments."""
+
+    devnode = fetch_devnode()
+
+    allcmds = CMDLINE_COMMANDS
+
+    text = """
+    A tool to configure and control the Yokogawa WT310 power meter. The first parameter must always
+    be the device node (e.g., /dev/usbtmc0). The only exception is when using \"{-h | --help}\" or
+    \"--version\" options. Please, refer to the man page for more information.
+    """
+    pars = MyArgsParser(description=text, prog='yokotool')
+
+    # The '--version' option
+    pars.add_argument("--version", action="version", version="%(prog)s " + "%s" % VERSION)
+
+    # The '--debug' option
+    text = "print debugging information"
+    pars.add_argument("-d", "--debug", action="store_true", help=text)
+
+    subpars = pars.add_subparsers(title="supported commands", metavar="")
+
+    #
+    # Create a parser for the 'info' command
+    #
+    pars1 = subpars.add_parser("info", help=allcmds["info"]["help"],
+                               description=allcmds["info"]["descr"])
+    pars1.set_defaults(func=info_command)
+
+    #
+    # Create a parser for the 'read' command
+    #
+    pars1 = subpars.add_parser("read", help=allcmds["read"]["help"],
+                               description=allcmds["read"]["descr"])
+    pars1.set_defaults(func=read_command)
+    text = "comma-separated list of data items to read"
+    pars1.add_argument("value", metavar="items", help=text)
+    text = "number of times to read the data items or the read time"
+    pars1.add_argument("-l", "--limit", help=text)
+
+    #
+    # Create a parser for the 'get' command
+    #
+    pars1 = subpars.add_parser("get", help=allcmds["get"]["help"],
+                               description=allcmds["get"]["descr"])
+    subpars1 = pars1.add_subparsers(title="properties", metavar="")
+
+    # Add properties as subcommands
+    for prop in PROPERTIES:
+        descr = "Get the " + prop["help"] + "."
+        pars2 = subpars1.add_parser(prop["name"], help=prop["help"], description=descr)
+        pars2.set_defaults(prop=prop)
+        pars2.set_defaults(func=get_command)
+
+    #
+    # Create a parser for the 'set' command
+    #
+    pars1 = subpars.add_parser("set", help=allcmds["set"]["help"],
+                               description=allcmds["set"]["descr"])
+    subpars1 = pars1.add_subparsers(title="properties", metavar="")
+
+    # Add properties as subcommands
+    for prop in PROPERTIES:
+        if "set-cmd" not in prop:
+            continue
+
+        descr = "Set the " + prop["help"] + "."
+        pars2 = subpars1.add_parser(prop["name"], help=prop["help"], description=descr)
+        pars2.set_defaults(prop=prop)
+        pars2.set_defaults(func=set_command)
+        text = "the value to assign to \"%s\"" % prop["name"]
+        pars2.add_argument("value", nargs="?", default=None, help=text)
+
+    #
+    # Create a parser for the 'integration' command
+    #
+    pars1 = subpars.add_parser("integration", help=allcmds["integration"]["help"],
+                               description=allcmds["integration"]["descr"])
+    subpars1 = pars1.add_subparsers(title="subcommands", metavar="")
+
+    # Add 'integration' subcommands
+    for subcmd in INTEGRATION_SUBCOMMANDS:
+        pars2 = subpars1.add_parser(subcmd["name"], help=subcmd["help"],
+                                    description=subcmd["descr"])
+        if subcmd["name"] == "wait":
+            pars2.set_defaults(func=integration_wait_subcommand)
+        else:
+            pars2.set_defaults(action=subcmd)
+            pars2.set_defaults(func=integ_command)
+
+    #
+    # Create a parser for the 'smoothing' command
+    #
+    pars1 = subpars.add_parser("smoothing", help=allcmds["smoothing"]["help"],
+                               description=allcmds["smoothing"]["descr"])
+
+    pars1.set_defaults(func=smoothing_command)
+    pars1.add_argument("value", metavar="on|off", help=allcmds["smoothing"]["help"])
+
+    #
+    # Create a parser for the 'calibrate' command
+    #
+    pars1 = subpars.add_parser("calibrate", help=allcmds["calibrate"]["help"],
+                               description=allcmds["calibrate"]["descr"])
+    pars1.set_defaults(func=calibrate_command)
+
+    #
+    # Create a parser for the 'factory-reset' command
+    #
+    pars1 = subpars.add_parser("factory-reset", help=allcmds["factory-reset"]["help"],
+                               description=allcmds["factory-reset"]["descr"])
+    pars1.set_defaults(func=factory_reset_command)
+
+    #
+    # Create a parser for the 'listen' command
+    #
+    pars1 = subpars.add_parser("listen", help=allcmds["listen"]["help"],
+                               description=allcmds["listen"]["descr"])
+    pars1.set_defaults(func=listen_command)
+    text = "TCP port number ranging from 1 through 65535"
+    pars1.add_argument("-p", "--port", nargs="?", default=10024, help=text)
+
+    global args
+
+    if sys.argv[-1] == "?":
+        cmd = sys.argv[-2]
+        if cmd in ("get", "set", "integration"):
+            log.info("%s", get_subcmds_help(cmd))
+            raise SystemExit(0)
+
+    try:
+        args = pars.parse_args()
+    except Error as err:
+        log.error(err)
+        raise SystemExit(1)
+    if args.debug:
+        args.loglevel = logging.DEBUG
+    else:
+        args.loglevel = logging.INFO
+
+    args.devnode = devnode
+    return args
+
+def setup_logger(logobj, loglevel, info_stream=sys.stdout, error_stream=sys.stderr):
+    """
+    A helper function which sets up and configures the 'logobj' logger. The log level is initialized
+    to 'loglevel'. The default is that 'info' messages go to standard output stream while 'debug',
+    'warning' and 'error' messages go to standard error stream. However, the 'stdout' and 'stderr'
+    parameters can be used to define custom streams for the messages.
+    """
+
+    # Esc-sequences for coloured output if stderr is a terminal
+    if sys.stderr.isatty():
+        esc_red = ESC_RED
+        esc_yellow = ESC_YELLOW
+        esc_green = ESC_GREEN
+        esc_end = ESC_END
+    else:
+        esc_red = ''
+        esc_yellow = ''
+        esc_green = ''
+        esc_end = ''
+
+    class MyFormatter(logging.Formatter):
+        """
+        A custom formatter for logging messages handling different formats for different log levels.
+        """
+
+        def __init__(self, fmt=None, datefmt=None):
+            """The constructor."""
+
+            logging.Formatter.__init__(self, fmt, datefmt)
+
+            self._orig_fmt = self._fmt
+            # Prefix with green-colored time-stamp, module name and line number.
+            self._dbg_fmt = "[" + esc_green + "%(asctime)s" + esc_end + \
+                            "] [%(module)s,%(lineno)d] " + self._fmt
+
+        def format(self, record):
+            """
+            The formatter which simply prefixes all debugging messages with a time-stamp and makes
+            sure the info messages stay intact.
+            """
+
+            # Add a time-stamp to debug messages
+            if record.levelno == logging.DEBUG:
+                self._fmt = self._dbg_fmt
+
+            # Leave the info messages without any formatting
+            if record.levelno == logging.INFO:
+                self._fmt = "%(message)s"
+
+            result = logging.Formatter.format(self, record)
+            self._fmt = self._orig_fmt
+            return result
+
+    class MyFilter(logging.Filter):
+        """A custom filter which allows only certain log levels to go through."""
+
+        def __init__(self, let_go):
+            """The constructor."""
+
+            logging.Filter.__init__(self)
+            self._let_go = let_go
+
+        def filter(self, record):
+            """Filter out all log levels except the ones user specified."""
+
+            if record.levelno in self._let_go:
+                return True
+            return False
+
+    # Change log level names to something nicer than the default all-capital 'INFO', etc.
+    logging.addLevelName(logging.ERROR, esc_red + "ERROR" + esc_end)
+    logging.addLevelName(logging.WARNING, esc_yellow + "WARNING" + esc_end)
+    logging.addLevelName(logging.DEBUG, "debug")
+    logging.addLevelName(logging.INFO, "info")
+    logobj.setLevel(loglevel)
+
+    # Remove existing handlers
+    logobj.handlers = []
+
+    # Install our handlers
+    formatter = MyFormatter("yokotool: %(levelname)s: %(message)s", "%H:%M:%S")
+    where = logging.StreamHandler(error_stream)
+    where.setFormatter(formatter)
+    where.addFilter(MyFilter((logging.ERROR, logging.WARNING, logging.DEBUG)))
+    logobj.addHandler(where)
+
+    where = logging.StreamHandler(info_stream)
+    where.setFormatter(formatter)
+    where.addFilter(MyFilter((logging.INFO,)))
+    logobj.addHandler(where)
+
+def info_command(meter):
+    """This function implements the 'info' command."""
+
+    for prop in PROPERTIES:
+        value = meter.command(prop["get-cmd"])
+        if sys.stdout.isatty():
+            value = ESC_BRIGHT_WHITE + "%s" % value + ESC_END
+        log.info("%s: %s", prop["help"].capitalize(), value)
+
+def get_command(meter):
+    """This function implements the 'get' command."""
+
+    result = meter.command(args.prop["get-cmd"])
+    log.info(result)
+
+def set_command(meter):
+    """This function implements the 'set' command."""
+
+    cmd = args.prop["set-cmd"]
+    if args.value == "?":
+        log.info("%s", meter.get_argument_help(cmd))
+    else:
+        meter.command(cmd, args.value)
+
+def set_data_items(meter, items):
+    """
+    This is a helper function for 'read_command()' which parses the list of data items specified by
+    the user and configures the power meter correspondingly.
+    """
+
+    if items == "?":
+        log.info("%s", meter.get_argument_help("set-data-item1"))
+        return
+
+    items = [s.strip() for s in items.split(",")]
+    if len(items) > meter.max_data_items:
+        log.error("too many data items to read, please, specify at most %s items",
+                  meter.max_data_items)
+        raise SystemExit(1)
+
+    meter.command("set-data-items-count", str(len(items)))
+    for number, item in enumerate(items, 1):
+        meter.command("set-data-item%d" % number, item)
+
+def interpret_read_argument(limit):
+    """
+    This is a helper function for 'read_command()' which interprets the second positional argument
+    of the 'read' subcommand. The argument may either be an integer number of times to read the
+    items or the time to continue reading. Returns a tuple containing the read count (or 'None') and
+    the read time (or 'None').
+    """
+
+    read_count = read_time = None
+    errmsg = "invalid reading limit; please specify either a positive integer number of times to " \
+             "read data items (or -1 to read forever) or the time to continue reading " \
+             "(in the 'H:M:S' or 'M:S' forms)"
+
+    try:
+        read_count = int(limit)
+        if read_count == -1:
+            # -1 means continue forever
+            read_count = None
+        elif read_count < 0:
+            log.error(errmsg)
+            raise SystemExit(1)
+    except (ValueError, TypeError):
+        try:
+            read_time = 0
+            for index, token in enumerate(limit.split(":")[::-1]):
+                read_time += int(token) * 60**index
+        except (ValueError, TypeError):
+            log.error(errmsg)
+            raise SystemExit(1)
+
+    return (read_time, read_count)
+
+def read_command(meter):
+    """This function implements the 'read' command."""
+
+    if args.value == "?":
+        log.info("%s", meter.get_argument_help("set-data-item1"))
+        return
+
+    set_data_items(meter, args.value)
+    finish_with_integration = False
+    read_count = read_time = None
+
+    if args.limit != None:
+        # 'read_count' can either be a number of samples to read or the time to continue reading
+        read_time, read_count = interpret_read_argument(args.limit)
+    else:
+        # If 'read_count' is missing and integration is ongoing, then finish when integration stops.
+        if meter.command("get-integration-state") == "start":
+            finish_with_integration = True
+
+    count = 0
+    start_time = time.time()
+
+    try:
+        while True:
+            if finish_with_integration:
+                integ_state = meter.command("get-integration-state")
+                if integ_state != "start":
+                    log.info("Integration finished, exiting")
+                    return
+
+            if read_time != None and time.time() - start_time > read_time:
+                log.info("%s second(s) read time is out, exiting", read_time)
+                return
+
+            if read_count != None and count >= read_count:
+                log.info("Read %d sample(s), exiting", read_count)
+                return
+
+            meter.command("wait-for-data-update")
+            log.info(meter.command("get-data"))
+
+            count += 1
+    except KeyboardInterrupt:
+        log.info("\rInterrupted, exiting")
+
+def integration_wait_subcommand(meter, arg): # pylint: disable=unused-argument
+    """
+    This function implements the 'integration wait' command-line subcommand. The implementation is
+    very trivial - we just poll the integration status. This could be implemented using WT310
+    commands, but the USBTMC driver times-out in 5 seconds.
+    """
+
+    while True:
+        integ_state = meter.command("get-integration-state")
+        if integ_state != "start":
+            break
+
+        # Yes, I know we could do better and avoid waking up every second, but I did not have time
+        # to do better here and it did not feel important.
+        time.sleep(1)
+
+def smoothing_command(meter):
+    """This function implements the 'smoothing' command."""
+
+    if args.value == "?":
+        log.info("%s", meter.get_argument_help("set-smoothing"))
+    else:
+        meter.command("set-smoothing", args.value)
+
+def integ_command(meter):
+    """This function implements the 'integration' command-line subcommand."""
+
+    # It is convenient for the user to be able to reset integration from any state, so allow
+    # resetting without stopping.
+    integ_state = meter.command("get-integration-state")
+    if args.action["name"] == "reset" and integ_state == "start":
+        meter.command("stop-integration")
+
+    result = meter.command(args.action["command"])
+    if result != None:
+        log.info(result)
+
+def calibrate_command(meter):
+    """This function implements the 'calibrate' command."""
+
+    meter.command("clear")
+    result = meter.command("calibrate")
+    log.info(result)
+
+def factory_reset_command(meter):
+    """This function implements the 'factory-reset' command."""
+
+    meter.command("clear")
+    meter.command("factory-reset")
+
+def configure_sock(port):
+    """
+    This function verifies the validity of the 'port' parameter and configures the socket to be the
+    entry point for commands.
+    """
+
+    try:
+        port = int(port)
+    except ValueError:
+        log.error("wrong TCP port %s, please, provide an integer value", port)
+        raise SystemExit(1)
+
+    if (port < 1) | (port > 65535):
+        log.error("wrong TCP port %s, please, provide a value ranging from 1 through 65535", port)
+        raise SystemExit(1)
+
+    spec = namedtuple('sock_spec', ['host', 'port', 'connections', 'bufsize'])
+    return spec('', port, 5, 1024)
+
+def start_sock_connection(sock_spec):
+    """This function creates a socket based on 'sock_spec' parameter and starts TCP listener."""
+
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind((sock_spec.host, sock_spec.port))
+        sock.listen(sock_spec.connections)
+    except IOError as err:
+        log.error("failed to start TCP listener on port %d: %s", sock_spec.port, err)
+        raise SystemExit(1)
+
+    return sock
+
+def listen_command(meter):
+    """
+    This function implements the 'listen' command which sets yokotool to listen on a TCP port
+    defined by user, process commands directed there, and route results to that same TCP port.
+    """
+
+    def drop_client(client, socket_fobj):
+        """This is a helper function which closes the client connection and restores the logger."""
+
+        setup_logger(log, logging.INFO)
+        client.close()
+        socket_fobj.close()
+
+    global args
+
+    sock_spec = configure_sock(args.port)
+    sock = start_sock_connection(sock_spec)
+
+    client = None
+    while True:
+        if not client:
+            # Wait for a client connection
+            client, _ = sock.accept()
+            # Create the socket-based file needed for the logger
+            socket_fobj = client.makefile()
+            # From now on, redirect all the output to the client.
+            setup_logger(log, logging.INFO, info_stream=socket_fobj,
+                         error_stream=socket_fobj)
+
+        command = client.recv(sock_spec.bufsize) # pylint: disable=no-member
+        if command:
+            # Commands received via socket are processed by 'parse_arguments()'
+            sys.argv = sys.argv[0:1] + command.split()
+
+            try:
+                args = parse_arguments()
+                log.setLevel(args.loglevel)
+                if args.func == listen_command:
+                    raise Error("the 'listen' command cannot be used in the client-server mode")
+                args.func(meter)
+            except (PowerMeter.ErrorBadArgument, Error) as err:
+                log.error(err)
+                drop_client(client, socket_fobj)
+                client = None
+            except:
+                drop_client(client, socket_fobj)
+                raise
+        else:
+            drop_client(client, socket_fobj)
+            client = None
+
+def main():
+    """
+    This is the program entry point. Here we parse the command line and execute a function
+    corresponding to the command user specified.
+    """
+
+    global args
+
+    setup_logger(log, logging.INFO)
+
+    args = parse_arguments()
+    if args.devnode:
+        try:
+            transport_obj = transport.USBTMC(args.devnode)
+            meter = WT310.WT310(transport_obj)
+        except (PowerMeter.Error, transport.Error) as err:
+            log.error(err)
+            raise SystemExit(1)
+
+        log.setLevel(args.loglevel)
+
+        try:
+            args.func(meter)
+        except PowerMeter.Error as err:
+            log.error(err)
+            raise SystemExit(1)
+        except PowerMeter.ErrorBadArgument as err:
+            log.error(err)
+            raise SystemExit(1)
+        except KeyboardInterrupt:
+            log.info("\rInterrupted, exiting")
+            raise SystemExit(1)
+    else:
+        log.error("please, specify the power meter device node argument (e.g., /dev/usbtmc0), " \
+                  "use -h for help")
+        raise SystemExit(1)
+
+if __name__ == "__main__":
+    sys.exit(main())

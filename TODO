@@ -1,0 +1,75 @@
+# vim: ts=4 sw=4 tw=100 et ai si
+
+Productization
+~~~~~~~~~~~~~~
+
+1. Bug fix
+- None.
+
+2. New features
+- None.
+
+3. Other improvements
+- Support a "~/.yokotool.conf" file that stores the device node along with other info (i.e. default
+  format for outputted data, default data separator, etc).
+
+- Review/improve commands:
+  * Remove "current-auto-range" sub-command, just use "current-range auto" instead. Same for the
+    "get" and "voltage" parts.
+  * Move all smoothing commands under "smoothing" (instead of splitting it among other commands like
+    "set" and "get").
+  * Move all integration commands under "integration" (instead of splitting it among other commands
+    like "set" and "get").
+  * Add a check that integration timer must be > 0 if the integration mode is "continuous" (check
+    further detail in Yokogawa's manual).
+
+- Teach the tool to output data as CSV format using for instance "-f/--format" option. Default
+  separator could be ";".
+
+- Review the command-line interface, change it if necessary. And it is recommended to get a fresh
+  look on it, as well as feedback about the commands (do they make sense? is naming meaningful? etc).
+
+- Read Yokogawa's manual, and improve the help messages:
+  * Explain integration better in help output.
+  * Explain math stuff better in help output.
+  * Explain averaging stuff better in help output.
+  * Add longer description for subcommands.
+  Help should be straight to the point and practical (i.e. 2 or 3 sentences for explanations + usage
+  examples). It could make sense to refer to Yokogawa's manual for further detail for instance (we
+  should not rewrite the contents of the manual!!).
+
+- Refactor the source code (consider using named tuples for data structures of more than 3 items
+  maybe, etc).
+
+- Clean up the source code (remove useless back slashes for split messages, fix typos, make messages
+  formatting consistent, etc).
+
+- Add some testing:
+  * Maybe python nose tests
+  * Investigate the usefulness of using bart - https://pypi.python.org/pypi/bart-py/1.1.0
+  * When tests are set up, measure the coverage http://coverage.readthedocs.org/en/latest/
+
+- Add a generic ESC filter to the logger to filter out all the ESC-sequences: ESC-sequences are a
+  way to instruct a terminal to do something special, like change the color, they are not meant for
+  displaying "as-is". Terminals interpret ESC-sequences, but this does not happen when the output is
+  a file.
+
+- Factorize some repeating patterns (like "ValueError" exception) into a separate "helpers.py" file.
+  For instance, a "is_int()" helper which returns a boolean value could be introduced for
+  "ValueError" exception.
+
+- Add a script to assist maintainer in releasing the project (refer to "bmap-tool" project
+  http://git.infradead.org/users/dedekind/bmap-tools.git).
+
+- Port Yoko tool to Python 3.
+
+- Investigate the usefulness of packaging Yoko tool for distribution at PyPI -
+  https://pypi.python.org/pypi
+
+
+Long-term improvements
+~~~~~~~~~~~~~~~~~~~~~~
+
+1. Depending on user feedback, add features, improve code. The biggest request
+   so far was to add WT210 support.
+

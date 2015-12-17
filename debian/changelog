@@ -1,0 +1,42 @@
+yoko-tools (1.0) trusty; urgency=low
+
+  * Bug fix: Show the right help message for integration subcommands that would always show "wait"
+    subcommand help message.
+
+  * Support "--version" as a standalone option which makes it work in the same model as "-h/--help".
+
+  * Document yokotool's man page, and rework the help for something very minimalistic since examples
+    and long descriptions are now in the man page.
+
+  * Reword some help messages to keep the style consistent.
+
+  * Enable support of "?" option for "read", "set" and "set <subcommand>", "get", "integration" and
+    "smoothing" commands. Users can get further information about the arguments expected by some
+    commands.
+
+  * Add a README file containing generic information as well as our coding style guidelines.
+
+  * Change "read <limit>" positional argument to "read -l/--limit" optional argument.
+
+ -- Helia Correia <helia.correia@intel.com>  Tue, 17 Nov 2015 18:23:21 +0200
+
+yoko-tools (0.2) trusty; urgency=low
+
+  * Bug fix: When setting interval, a misleading error message is outputted to user when they enter
+    a whole number (i.e. 5) instead of a rational number (i.e. 5.0).
+
+  * Bug fix: Do not display duplicated error messages.
+
+  * Change Voltage notation from U to V since V is the letter most commonly used in physics
+    litterature and documentation.
+
+  * Implement socket-based interface: yokotool listens on a TCP port defined by user, processes
+    commands directed there, and routes results to that same TCP port.
+
+ -- Helia Correia <helia.correia@intel.com>  Mon, 22 Jun 2015 11:17:21 +0200
+
+yoko-tools (0.1) unstable; urgency=low
+
+  * Initial yokotool preliminary release version 0.1. It is not ready for the final 1.0 release yet.
+
+ -- Artem Bityutskiy <artem.bityutskiy@linux.intel.com>  Tue, 04 Mar 2014 17:18:12 +0200

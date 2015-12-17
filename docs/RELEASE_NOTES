@@ -1,0 +1,55 @@
+Release 1.0
+~~~~~~~~~~~
+
+1. Bug fix:
+   Show the right help message for integration subcommands that would always show "wait" subcommand
+   help message.
+
+2. Support "--version" as a standalone option which makes it work in the same model as "-h/--help".
+
+3. Document yokotool's man page, and rework the help for something very minimalistic since examples
+   and long descriptions are now in the man page.
+
+4. Reword some help messages to keep the style consistent.
+
+5. Enable support of "?" option for "read", "set" and "set <subcommand>", "get", "integration" and
+   "smoothing" commands. Users can get further information about the arguments expected by some
+   commands.
+
+6. Add a README file containing generic information as well as our coding style guidelines.
+
+7. Change "read <limit>" positional argument to "read -l/--limit" optional argument.
+
+
+Release 0.2
+~~~~~~~~~~~
+
+1. Bug fixes:
+   When setting interval, a misleading error message was outputted to user when they enter a whole
+   number (i.e. 5) instead of a rational number (i.e. 5.0).
+
+   Do not display duplicated error messages.
+
+2. Change Voltage notation from U to V since V is the letter most commonly used in physics
+   litterature and documentation.
+
+3. Implement socket-based interface: yokotool listens on a TCP port defined by user, processes
+   commands directed there, and routes results to that same TCP port.
+
+
+Release 0.1
+~~~~~~~~~~~
+
+Yokotool is a tool for controlling the Yokogawa WT310 industrial power meter. It supports most of
+the WT310 functionality except of some very advanced and rarely used like harmonics. Its
+command-line interface uses sub-options similar to git. For now yokotool only supports USB
+interface, it does not support RS232.
+
+The tool is written in python. It is based on WT310.py library that can be used directly by other
+python-based programs, e.g., unit tests. Hence, yokotool is a wrapper over WT310.py library which
+mostly implements command-line options, prints help messages, etc.
+
+Yokotool was created to answer the need to have a tool supporting WT310 on Linux.
+
+Further detail about yokotool's capabilities as well as usage examples are embedded within the tool,
+and exposed to users by means of -h/--help argument.
