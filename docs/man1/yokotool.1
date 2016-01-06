@@ -177,7 +177,6 @@ $ yokotool <devnode> set interval 0.1
 $ yokotool <devnode> set voltage-auto-range on
 $ yokotool <devnode> set measurement-mode rms
 $ yokotool <devnode> set crest-factor 3
-$ yokotool <devnode> set smoothing-factor 64
 $ yokotool <devnode> set integration-mode continuous
 .fi
 .RE
@@ -289,7 +288,7 @@ $ yokotool <devnode> smoothing ?
 
 The list of values for a smoothing property can also be displayed with \fB?\fP:
 .nf
-$ yokotool <devnode> smoothing ?
+$ yokotool <devnode> smoothing <property> ?
 .fi
 
 .nf
@@ -301,7 +300,7 @@ $ yokotool <devnode> smoothing status on
 Enable smoothing
 
 $ yokotool <devnode> smoothing type exponent
-Get smoothing type to exponential
+Set smoothing type to exponential
 
 $ yokotool <devnode> smoothing factor
 Get smoothing factor
