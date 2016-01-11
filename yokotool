@@ -743,7 +743,7 @@ def read_command(meter):
     except KeyboardInterrupt:
         log.info("\rInterrupted, exiting")
 
-def integration_wait_subcommand(meter, arg): # pylint: disable=unused-argument
+def integration_wait_subcommand(meter):
     """
     This function implements the 'integration wait' command-line subcommand. The implementation is
     very trivial - we just poll the integration status. This could be implemented using WT310
