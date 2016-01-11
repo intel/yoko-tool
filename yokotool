@@ -486,7 +486,10 @@ def parse_arguments():
         if subcmd["name"] == "wait":
             pars2.set_defaults(func=integration_wait_subcommand)
         else:
-            pars2.set_defaults(action=subcmd)
+            if subcmd["name"] in ("mode", "timer"):
+                text = "the value to assign to \"integration %s\"" % subcmd["name"]
+                pars2.add_argument("value", nargs="?", default=None, help=text)
+            pars2.set_defaults(subcmd=subcmd)
             pars2.set_defaults(func=integ_command)
 
     #
