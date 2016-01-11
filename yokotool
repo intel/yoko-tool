@@ -240,7 +240,8 @@ CMDLINE_COMMANDS = {
     },
     "integration" : {
         "help"  : "integration-related commands",
-        "descr" : """This command controls the integration feature of the power meter.
+        "descr" : """Control the integration feature of the power meter and get or set an
+                     integration property like the state, mode or timer.
                      Please, refer to the man page for more information.""",
     },
     "smoothing" : {
@@ -265,10 +266,13 @@ CMDLINE_COMMANDS = {
 }
 
 # This data structure describes the 'integration' command
-#    * name   : name of command
+#    * name   : name of the subcommand
 #    * command: corresponding power meter's command (if any)
-#    * help   : short/one line property description
-INTEGRATION_SUBCOMMANDS = (
+#    * get-cmd: power meter's command to get the property
+#    * set-cmd: power meter's command to set the property
+#    * help   : short/one line subcommand/property description
+#    * descr  : description of the subcommand/property
+INTEGRATION_SUBCMDS_PROPS = (
     {
         "name"    : "wait",
         "command" : "start-integration",
@@ -294,10 +298,24 @@ INTEGRATION_SUBCOMMANDS = (
         "descr"   : "Reset integration.",
     },
     {
-        "name"    : "state",
-        "command" : "get-integration-state",
-        "help"    : "get integration state",
-        "descr"   : "Get integration state.",
+        "name"     : "state",
+        "get-cmd"  : "get-integration-state",
+        "help"     : "integration state",
+        "descr"    : "Get integration state.",
+    },
+    {
+        "name"     : "mode",
+        "get-cmd"  : "get-integration-mode",
+        "set-cmd"  : "set-integration-mode",
+        "help"     : "integration mode",
+        "descr"    : "Get or set integration mode.",
+    },
+    {
+        "name"     : "timer",
+        "get-cmd"  : "get-integration-timer",
+        "set-cmd"  : "set-integration-timer",
+        "help"     : "integration timer value",
+        "descr"    : "Get or set an integration timer value.",
     },
 )
 
@@ -368,7 +386,7 @@ def get_subcmds_help(cmd):
 
     subcmds = []
     if cmd == "integration":
-        for item in INTEGRATION_SUBCOMMANDS:
+        for item in INTEGRATION_SUBCMDS_PROPS:
             subcmds.append(item["name"])
     elif cmd in ("get", "set"):
         for item in PROPERTIES:
@@ -461,8 +479,8 @@ def parse_arguments():
                                description=allcmds["integration"]["descr"])
     subpars1 = pars1.add_subparsers(title="subcommands", metavar="")
 
-    # Add 'integration' subcommands
-    for subcmd in INTEGRATION_SUBCOMMANDS:
+    # Add 'integration' subcommands and properties
+    for subcmd in INTEGRATION_SUBCMDS_PROPS:
         pars2 = subpars1.add_parser(subcmd["name"], help=subcmd["help"],
                                     description=subcmd["descr"])
         if subcmd["name"] == "wait":
