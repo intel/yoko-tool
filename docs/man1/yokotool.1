@@ -177,13 +177,12 @@ $ yokotool <devnode> set interval 0.1
 $ yokotool <devnode> set voltage-auto-range on
 $ yokotool <devnode> set measurement-mode rms
 $ yokotool <devnode> set crest-factor 3
-$ yokotool <devnode> set integration-mode continuous
 .fi
 .RE
 .RE
 
 .RS
-.B integration SUBCOMMAND
+.B integration SUBCOMMAND|PROPERTY [VALUE]
 .RS
 Integration is a power meter feature to integrate active power and current in
 order to get watt-hours (Wh, energy) and ampere-hours (Ah, charge). Positive
@@ -214,13 +213,13 @@ The only way to get out of this state is to run \fBintegration reset\fP command.
 - Finally, when integration is in \fBerror\fP state, the integration block needs
 to be reset because an error occurred.
 
-The list of integration states can also be displayed with \fB?\fP:
+The list of integration states and properties can also be displayed with \fB?\fP:
 .nf
 $ yokotool <devnode> integration ?
 .fi
 
 An integration \fBtimer\fP can be used to define for how long to run the
-computations (see \fBset integration-timer\fP command). Setting the timer to
+computations (see \fBintegration timer\fP command). Setting the timer to
 \fB0\fP means running the computations forever (or until something overflows or
 integration time reaches its maximum possible value).
 
@@ -232,24 +231,33 @@ the timer fires up.
 - In \fBcontinuous\fP mode though, it just restarts, starts calculating from
 scratch, and continues this way until integration is stopped or reset.
 
-To select the integration mode, use \fBset integration-mode\fP command.
+To select the integration mode, see \fBintegration mode\fP command.
+
+The list of properties for the integration command is \fBstate\fP, \fBmode\fP and
+\fBtimer\fP. \fBstate\fP property  reflects the ongoing state of integration command,
+thus it cannot be set directly unlike \fBmode\fP and \fBtimer\fP.
+
+The list of values for an integration property can also be displayed with \fB?\fP:
+.nf
+$ yokotool <devnode> integration <property> ?
+.fi
 
 .nf
 Usage examples:
 $ yokotool <devnode> integration reset
 Reset the integration
 
-$ yokotool <devnode> set integration-mode normal
+$ yokotool <devnode> integration mode normal
 Switch to the normal (one-shot) mode
 
-$ yokotool <devnode> set integration-timer 10
+$ yokotool <devnode> integration timer 10
 Set the timer to 10 seconds
 
-$ yokotool <devnode> set update-interval 0.5
+$ yokotool <devnode> set interval 0.5
 Set data update interval to half a second
 
 $ yokotool <devnode> integration start
-Start the integraion
+Start the integration
 
 $ yokotool <devnode> read 'Wh,Ah'
 Read watt-hours and apere-hours until integration timer fires up
