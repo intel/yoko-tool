@@ -142,23 +142,6 @@ PROPERTIES = (
         "help"     : "crest factor",
     },
     {
-        "name"     : "integration-state",
-        "get-cmd"  : "get-integration-state",
-        "help"     : "integration state",
-    },
-    {
-        "name"     : "integration-mode",
-        "get-cmd"  : "get-integration-mode",
-        "set-cmd"  : "set-integration-mode",
-        "help"     : "integration mode",
-    },
-    {
-        "name"     : "integration-timer",
-        "get-cmd"  : "get-integration-timer",
-        "set-cmd"  : "set-integration-timer",
-        "help"     : "integration timer value",
-    },
-    {
         "name"     : "hold",
         "get-cmd"  : "get-hold",
         "set-cmd"  : "set-hold",
