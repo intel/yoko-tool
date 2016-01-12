@@ -800,12 +800,26 @@ def integ_command(meter):
     # It is convenient for the user to be able to reset integration from any state, so allow
     # resetting without stopping.
     integ_state = meter.command("get-integration-state")
-    if args.action["name"] == "reset" and integ_state == "start":
+    if args.subcmd["name"] == "reset" and integ_state == "start":
         meter.command("stop-integration")
 
-    result = meter.command(args.action["command"])
-    if result != None:
-        log.info(result)
+    if "command" in args.subcmd:
+        result = meter.command(args.subcmd["command"])
+        if result != None:
+            log.info(result)
+    elif "set-cmd" in args.subcmd:
+        if args.value == None:
+            log.info("%s", meter.command(args.subcmd["get-cmd"]))
+        else:
+            args_list = meter.get_argument_help(args.subcmd["set-cmd"])
+            if args.value == "?":
+                log.info("%s", args_list)
+            elif str(args.value) in args_list:
+                meter.command(args.subcmd["set-cmd"], args.value)
+            else:
+                raise PowerMeter.ErrorBadArgument(args.value, args_list)
+    else:
+        log.info("%s", meter.command(args.subcmd["get-cmd"]))
 
 def calibrate_command(meter):
     """This function implements the 'calibrate' command."""
