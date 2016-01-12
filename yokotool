@@ -767,7 +767,7 @@ def smoothing_command(meter):
     else:
         args_list = meter.get_argument_help(args.subcmd["set-cmd"])
         if args.value == "?":
-           log.info("%s", meter.get_argument_help(args.subcmd["set-cmd"]))
+           log.info("%s", args_list)
         elif args.value in args_list:
             meter.command(args.subcmd["set-cmd"], args.value)
         else:
