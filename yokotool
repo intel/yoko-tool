@@ -364,7 +364,7 @@ def fetch_devnode():
 def get_subcmds_help(cmd):
     """
     Return a user-friendly help message listing the possible subcommands for 'cmd'. For example, it
-    returns 'wait, start, stop, reset, state' for 'integration' command.
+    returns 'wait, start, stop, reset, state, mode, timer' for 'integration' command.
     """
 
     subcmds = []
@@ -473,7 +473,7 @@ def parse_arguments():
                 text = "the value to assign to \"integration %s\"" % subcmd["name"]
                 pars2.add_argument("value", nargs="?", default=None, help=text)
             pars2.set_defaults(subcmd=subcmd)
-            pars2.set_defaults(func=integ_command)
+            pars2.set_defaults(func=integration_command)
 
     #
     # Create a parser for the 'smoothing' command
@@ -749,9 +749,9 @@ def read_command(meter):
 
 def integration_wait_subcommand(meter):
     """
-    This function implements the 'integration wait' command-line subcommand. The implementation is
-    very trivial - we just poll the integration status. This could be implemented using WT310
-    commands, but the USBTMC driver times-out in 5 seconds.
+    This function implements the 'integration wait' subcommand. The implementation is very trivial
+    since we just poll the integration status. This could be implemented using WT310 commands, but
+    the USBTMC driver times-out in 5 seconds.
     """
 
     while True:
@@ -763,22 +763,8 @@ def integration_wait_subcommand(meter):
         # to do better here and it did not feel important.
         time.sleep(1)
 
-def smoothing_command(meter):
-    """This function implements the 'smoothing' command."""
-
-    if args.value == None:
-        log.info(meter.command(args.subcmd["get-cmd"]))
-    else:
-        args_list = meter.get_argument_help(args.subcmd["set-cmd"])
-        if args.value == "?":
-           log.info("%s", args_list)
-        elif args.value in args_list:
-            meter.command(args.subcmd["set-cmd"], args.value)
-        else:
-            raise PowerMeter.ErrorBadArgument(args.value, args_list)
-
-def integ_command(meter):
-    """This function implements the 'integration' command-line subcommand."""
+def integration_command(meter):
+    """This function implements the 'integration' command."""
 
     # It is convenient for the user to be able to reset integration from any state, so allow
     # resetting without stopping.
@@ -803,6 +789,20 @@ def integ_command(meter):
                 raise PowerMeter.ErrorBadArgument(args.value, args_list)
     else:
         log.info("%s", meter.command(args.subcmd["get-cmd"]))
+
+def smoothing_command(meter):
+    """This function implements the 'smoothing' command."""
+
+    if args.value == None:
+        log.info(meter.command(args.subcmd["get-cmd"]))
+    else:
+        args_list = meter.get_argument_help(args.subcmd["set-cmd"])
+        if args.value == "?":
+           log.info("%s", args_list)
+        elif args.value in args_list:
+            meter.command(args.subcmd["set-cmd"], args.value)
+        else:
+            raise PowerMeter.ErrorBadArgument(args.value, args_list)
 
 def calibrate_command(meter):
     """This function implements the 'calibrate' command."""
