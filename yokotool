@@ -773,9 +773,7 @@ def integration_command(meter):
         meter.command("stop-integration")
 
     if "command" in args.subcmd:
-        result = meter.command(args.subcmd["command"])
-        if result != None:
-            log.info(result)
+        meter.command(args.subcmd["command"])
     elif "set-cmd" in args.subcmd:
         if args.value == None:
             log.info("%s", meter.command(args.subcmd["get-cmd"]))
