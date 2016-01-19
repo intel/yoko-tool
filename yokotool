@@ -774,19 +774,16 @@ def integration_command(meter):
 
     if "command" in args.subcmd:
         meter.command(args.subcmd["command"])
-    elif "set-cmd" in args.subcmd:
-        if args.value == None:
-            log.info("%s", meter.command(args.subcmd["get-cmd"]))
-        else:
-            args_list = meter.get_argument_help(args.subcmd["set-cmd"])
-            if args.value == "?":
-                log.info("%s", args_list)
-            elif str(args.value) in args_list:
-                meter.command(args.subcmd["set-cmd"], args.value)
-            else:
-                raise PowerMeter.ErrorBadArgument(args.value, args_list)
-    else:
+    elif args.subcmd["name"] == "state" or args.value == None:
         log.info("%s", meter.command(args.subcmd["get-cmd"]))
+    else:
+        args_list = meter.get_argument_help(args.subcmd["set-cmd"])
+        if args.value == "?":
+            log.info("%s", args_list)
+        elif str(args.value) in args_list:
+            meter.command(args.subcmd["set-cmd"], args.value)
+        else:
+            raise PowerMeter.ErrorBadArgument(args.value, args_list)
 
 def smoothing_command(meter):
     """This function implements the 'smoothing' command."""
