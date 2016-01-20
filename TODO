@@ -16,8 +16,6 @@ Productization
 - Review/improve commands:
   * Remove "current-auto-range" sub-command, just use "current-range auto" instead. Same for the
     "get" and "voltage" parts.
-  * Add a check that integration timer must be > 0 if the integration mode is "continuous" (check
-    further detail in Yokogawa's manual).
 
 - Teach the tool to output data as CSV format using for instance "-f/--format" option. Default
   separator could be ";".
