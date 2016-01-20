@@ -935,7 +935,7 @@ def main():
             log.info("\rInterrupted, exiting")
             raise SystemExit(1)
     else:
-        log.error("please, specify the power meter device node argument (e.g., /dev/usbtmc0), " \
+        log.error("please, specify the power meter device node argument (e.g., /dev/usbtmc0), "
                   "use -h for help")
         raise SystemExit(1)
 
