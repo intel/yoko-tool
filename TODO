@@ -13,10 +13,6 @@ Productization
 - Support a "~/.yokotool.conf" file that stores the device node along with other info (i.e. default
   format for outputted data, default data separator, etc).
 
-- Review/improve commands:
-  * Remove "current-auto-range" sub-command, just use "current-range auto" instead. Same for the
-    "get" and "voltage" parts.
-
 - Teach the tool to output data as CSV format using for instance "-f/--format" option. Default
   separator could be ";".
 
@@ -34,9 +30,6 @@ Productization
 
 - Refactor the source code (consider using named tuples for data structures of more than 3 items
   maybe, etc).
-
-- Clean up the source code (remove useless back slashes for split messages, fix typos, make messages
-  formatting consistent, etc).
 
 - Add some testing:
   * Maybe python nose tests

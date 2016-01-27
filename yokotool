@@ -774,12 +774,12 @@ def integration_command(meter):
 
     if "command" in args.subcmd:
         if args.subcmd["name"] == "start":
-           integ_timer = meter.command("get-integration-timer")
-           integ_mode =  meter.command("get-integration-mode")
-           if integ_timer == "0" and integ_mode == "continuous":
-               log.error("Please, set a timer value higher than \"%s\" to start integration in "
+            integ_timer = meter.command("get-integration-timer")
+            integ_mode = meter.command("get-integration-mode")
+            if integ_timer == "0" and integ_mode == "continuous":
+                log.error("Please, set a timer value higher than \"%s\" to start integration in "
                          "\"%s\" mode.", integ_timer, integ_mode)
-           return
+            return
         meter.command(args.subcmd["command"])
     elif args.subcmd["name"] == "state" or args.value == None:
         log.info("%s", meter.command(args.subcmd["get-cmd"]))
@@ -800,7 +800,7 @@ def smoothing_command(meter):
     else:
         args_list = meter.get_argument_help(args.subcmd["set-cmd"])
         if args.value == "?":
-           log.info("%s", args_list)
+            log.info("%s", args_list)
         elif args.value in args_list:
             meter.command(args.subcmd["set-cmd"], args.value)
         else:
