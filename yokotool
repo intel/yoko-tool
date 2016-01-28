@@ -43,6 +43,8 @@ from yokotools import WT310, PowerMeter, transport
 
 VERSION = "1.0"
 
+SUPPORTED_DEVMODELS = ("wt310",)
+
 class Error(Exception):
     """A class for exceptions we generate."""
     pass
@@ -327,9 +329,12 @@ def fetch_devnode():
         if arg.startswith("-"):
             continue
         if not arg in CMDLINE_COMMANDS.keys():
-            devnode = arg
-            index = idx + 1
-        break
+            # The argument following "-m | --devmodel" is most probably the parameter's value
+            # so it is not considered as a device node candidate
+            if sys.argv[idx] not in ("-m", "--devmodel"):
+                devnode = arg
+                index = idx + 1
+            break
 
     if not devnode:
         return None
@@ -381,6 +386,16 @@ def get_subcmds_help(cmd):
 
     return ", ".join(subcmds)
 
+class ListModelsAction(argparse.Action):
+    """This class defines a custom action to handle '--list-models' optional paramater."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        """The custom action triggered by '--list-models' optional paramater."""
+
+        setattr(namespace, self.dest, self.const)
+        log.info("List of supported power meter device models: %s", SUPPORTED_DEVMODELS[0])
+        parser.exit()
+
 def parse_arguments():
     """A helper function which parses the input arguments."""
 
@@ -390,8 +405,9 @@ def parse_arguments():
 
     text = """
     A tool to configure and control the Yokogawa WT310 power meter. The first parameter must always
-    be the device node (e.g., /dev/usbtmc0). The only exception is when using \"{-h | --help}\" or
-    \"--version\" options. Please, refer to the man page for more information.
+    be the device node (e.g., /dev/usbtmc0). The only exception is when using \"{-h | --help}\",
+    \"--version\" or \"--list-models\" options. Please, refer to the man page for more
+    information.
     """
     pars = MyArgsParser(description=text, prog='yokotool')
 
@@ -401,6 +417,14 @@ def parse_arguments():
     # The '--debug' option
     text = "print debugging information"
     pars.add_argument("-d", "--debug", action="store_true", help=text)
+
+    # The '--devmodel' option
+    text = "the power meter device model (e.g., %s)" % SUPPORTED_DEVMODELS[0]
+    pars.add_argument("-m", "--devmodel", help=text)
+
+    # The '--list-models' option
+    text = "list the supported power meter device models"
+    pars.add_argument("--list-models", action=ListModelsAction, nargs=0, help=text)
 
     subpars = pars.add_subparsers(title="supported commands", metavar="")
 
@@ -913,6 +937,12 @@ def main():
     setup_logger(log, logging.INFO)
 
     args = parse_arguments()
+
+    if not str(args.devmodel).lower() in SUPPORTED_DEVMODELS:
+        log.error("\"%s\" power meter device model is not supported, please, use --list-models "
+                  "option", args.devmodel)
+        raise SystemExit(1)
+
     if args.devnode:
         try:
             transport_obj = transport.USBTMC(args.devnode)

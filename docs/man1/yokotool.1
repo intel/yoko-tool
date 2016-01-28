@@ -31,8 +31,8 @@ The command-line interface is based on subcommands. Each subcommand supports the
 \fB{-h | --help}\fP option which is meant to provide a quick help usage.
 
 The first parameter must always be the device node. The only exception is when
-using \fB{-h | --help}\fP or \fB--version\fP options, in which case the device node
-becomes optional.
+using \fB{-h | --help}\fP, \fB--version\fP or  \fB--list-models\fP options,
+in which case the device node becomes optional.
 
 
 .SH OPTIONS
@@ -70,6 +70,16 @@ Show program's version number and exit.
 .B -d, --debug
 .RS
 Print debugging information.
+.RE
+
+.B -m, --devmodel
+.RS
+The power meter device model (e.g., wt310).
+.RE
+
+.B --list-models
+.RS
+List the supported power meter device models.
 .RE
 
 .B Supported commands
@@ -378,7 +388,7 @@ Helia Correia <helia.correia@intel.com>.
 .nf
 Please, report bugs to:
 .RS
-Helia Correia <helia.correia@intel.com>
+Helia Correia <helia.correia@linux.intel.com>
 Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 .RE
 .fi
