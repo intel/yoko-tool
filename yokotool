@@ -37,6 +37,7 @@ import time
 import socket
 import logging
 import argparse
+import ConfigParser
 from collections import namedtuple
 
 from yokotools import WT310, PowerMeter, transport
@@ -406,8 +407,9 @@ def parse_arguments():
     text = """
     A tool to configure and control the Yokogawa WT310 power meter. The first parameter must always
     be the device node (e.g., /dev/usbtmc0). The only exception is when using \"{-h | --help}\",
-    \"--version\" or \"--list-models\" options. Please, refer to the man page for more
-    information.
+    \"--version\" or \"--list-models\" options. Some parameters can be specified within
+    \"/home/$USER/.yokotool.conf\" configuration file, which spares you the need to specify them
+    from the command-line. Please, refer to the man page for more information.
     """
     pars = MyArgsParser(description=text, prog='yokotool')
 
@@ -911,6 +913,8 @@ def listen_command(meter):
 
             try:
                 args = parse_arguments()
+                args.config = load_config()
+                merge_args()
                 log.setLevel(args.loglevel)
                 if args.func == listen_command:
                     raise Error("the 'listen' command cannot be used in the client-server mode")
@@ -926,6 +930,51 @@ def listen_command(meter):
             drop_client(client, socket_fobj)
             client = None
 
+def load_config():
+    """
+    If a configuration file exists, read its settings to a dictionary and return the dictionary.
+    """
+
+    CONFIG_FILE = ".yokotool.conf"
+    cfgpath = os.path.join(os.path.expanduser("~"), CONFIG_FILE)
+    if not os.path.isfile(cfgpath):
+        return
+
+    config = {}
+
+    try:
+        with open(cfgpath, "r") as f:
+            cfgfile = ConfigParser.ConfigParser()
+            cfgfile.readfp(f)
+            try:
+                config["devmodel"] = cfgfile.get("Connection", "device_model")
+                config["devnode"] = cfgfile.get("Connection", "device_node")
+            except ConfigParser.Error as error:
+                log.error("could not get data from %s file: %s", cfgpath, error)
+                raise SystemExit(1)
+            finally:
+                f.close()
+    except IOError as error:
+        log.error("could not open %s file: %s", cfgpath, error)
+        raise SystemExit(1)
+
+    return config
+
+def merge_args():
+    """
+    Merge the configuration file's settings (like the device model and device node for instance)
+    with the command-line arguments within 'args'. The configuration file's settings are used when
+    the corresponding command-line arguments are not specified. However, when a command-line
+    argument is specified, it prevails over the corresponding configuration file's setting.
+    """
+
+    if not args.config:
+        return
+
+    for name in dict(args.config):
+        if hasattr(args, name) and getattr(args, name) == None:
+            setattr(args, name, args.config[name])
+
 def main():
     """
     This is the program entry point. Here we parse the command line and execute a function
@@ -937,6 +986,8 @@ def main():
     setup_logger(log, logging.INFO)
 
     args = parse_arguments()
+    args.config = load_config()
+    merge_args()
 
     if not str(args.devmodel).lower() in SUPPORTED_DEVMODELS:
         log.error("\"%s\" power meter device model is not supported, please, use --list-models "
@@ -965,8 +1016,8 @@ def main():
             log.info("\rInterrupted, exiting")
             raise SystemExit(1)
     else:
-        log.error("please, specify the power meter device node argument (e.g., /dev/usbtmc0), "
-                  "use -h for help")
+        log.error("please, specify the power meter device node argument (e.g., /dev/usbtmc0) "
+                  "or save it to \"/home/$USER/.yokotool.conf\" file, use -h for help")
         raise SystemExit(1)
 
 if __name__ == "__main__":

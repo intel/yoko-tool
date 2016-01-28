@@ -34,6 +34,25 @@ The first parameter must always be the device node. The only exception is when
 using \fB{-h | --help}\fP, \fB--version\fP or  \fB--list-models\fP options,
 in which case the device node becomes optional.
 
+The device model and device node parameters can be specified within
+\fB/home/$USER/.yokotool.conf\fP configuration file, which spares you the need to
+specify them from the command-line.
+
+Below is the procedure explaining how to benefit from this capability.
+
+- Yoko tool provides you with a template configuration file called
+\fB.yokotool.conf.template\fP located at the root folder of the project
+
+- \fB.yokotool.conf.template\fP is initialized with default device model and
+device node values
+
+- Copy the template file to your \fB/home/$USER/\fP folder, and rename it as
+\fB.yokotool.conf\fP:
+  $ cd yoko-tool
+  $ cp .yokotool.conf.template /home/$USER/.yokotool.conf
+
+- Edit your configuration file, update its contents if necessary and save it:
+  $ vi /home/$USER/.yokotool.conf
 
 .SH OPTIONS
 
