@@ -7,9 +7,11 @@ Yoko tool is a command-line tool for configuring and controlling Yokogawa WT310 
 For further detail, please visit https://01.org/yoko-tool.
 
 
-Code contributors
+Authors:
 - Artem Bityutskiy
 - Andriy Shevchenko
+
+Other code contributors:
 - Wendy Wang
 - Erik Veijola
 - David Box

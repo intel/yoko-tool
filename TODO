@@ -13,9 +13,6 @@ Productization
 - Support a "~/.yokotool.conf" file that stores the device node along with other info (i.e. default
   format for outputted data, default data separator, etc).
 
-- Teach the tool to output data as CSV format using for instance "-f/--format" option. Default
-  separator could be ";".
-
 - Review the command-line interface, change it if necessary. And it is recommended to get a fresh
   look on it, as well as feedback about the commands (do they make sense? is naming meaningful? etc).
 
