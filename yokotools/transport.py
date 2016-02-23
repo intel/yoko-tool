@@ -98,11 +98,7 @@ class USBTMC(_Transport):
 
         # Make sure the device is a USBTMC device by invoking a USBTMC-specific IOCTL and checking
         # that it is supported.
-        try:
-            ioctl(self._fd, USBTMC_IOCTL_CLEAR)
-        except IOError as err:
-            if err.errno == os.errno.ENOTTY:
-                raise Error("'%s' is not a USBTMC device" % self._devnode)
+        self.ioctl(USBTMC_IOCTL_CLEAR)
 
     def __del__(self):
         """The class destructor."""
@@ -131,7 +127,10 @@ class USBTMC(_Transport):
         return data
 
     def ioctl(self, operation):
-        """Execute specific IOCTL."""
+        """
+        Execute specific IOCTL to ensure that we are dealing with the expected type of character
+        device.
+        """
 
         try:
             ioctl(self._fd, operation)
