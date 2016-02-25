@@ -388,13 +388,12 @@ def get_subcmds_help(cmd):
     return ", ".join(subcmds)
 
 class ListModelsAction(argparse.Action):
-    """This class defines a custom action to handle '--list-models' optional paramater."""
+    """This class defines a custom action to handle '--list-models' command-line option."""
 
     def __call__(self, parser, namespace, values, option_string=None):
-        """The custom action triggered by '--list-models' optional paramater."""
+        """The custom action triggered by '--list-models' command-line option."""
 
-        setattr(namespace, self.dest, self.const)
-        log.info("List of supported power meter device models: %s", SUPPORTED_DEVMODELS[0])
+        log.info("List of supported power meter device models: %s", ", ".join(SUPPORTED_DEVMODELS))
         parser.exit()
 
 def parse_arguments():
