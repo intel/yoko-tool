@@ -41,15 +41,15 @@ class _Transport(object):
 
     def _dbg(self, message): # pylint: disable=no-self-use
         """Print a debug message."""
-        self._log.debug("%s", message.rstrip())
+        self._log.debug("%s: %s", self._devnode, message.rstrip())
 
-    def read(self, size):
-        """Read from the transport interface."""
-        raise Error("read(%s) method should be implemented in %s class" % (size, self._name))
+    def read(self, size, data):
+        """Print a debug message for the 'data' read from the transport interface."""
+        self._dbg("received: %s" % data)
 
     def write(self, data):
-        """Write an arbitrary 'data' to the transport interface."""
-        raise Error("write(%d) method should be implemented in %s class" % (len(data), self._name))
+        """Print a debug message for the arbitrary 'data' written to the transport interface."""
+        self._dbg("sent: %s" % data)
 
     def query(self, command, size=4096):
         """Write 'command' and return the read response."""
@@ -110,11 +110,12 @@ class USBTMC(_Transport):
     def write(self, data):
         """Write command directly to the device."""
 
-        self._dbg("send: %s" % data)
         try:
             os.write(self._fd, data)
         except OSError as err:
             raise Error("error while writing to device '%s': %s" % (self._devnode, err))
+
+        super(USBTMC, self).write(data)
 
     def read(self, size=4096):
         """Read an arbitrary amount of data directly from the device."""
@@ -123,7 +124,9 @@ class USBTMC(_Transport):
             data = os.read(self._fd, size)
         except OSError as err:
             raise Error("error while reading from device '%s': %s" % (self._devnode, err))
-        self._dbg("received: %s" % data)
+
+        super(USBTMC, self).read(size, data)
+
         return data
 
     def ioctl(self, operation):
