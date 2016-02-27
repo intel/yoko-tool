@@ -33,11 +33,12 @@ class Error(Exception):
 class _Transport(object):
     """Virtual base class for the transport interface."""
 
-    def __init__(self):
+    def __init__(self, devnode):
         """The virtual base class constructor."""
 
         self._name = self.__class__.__name__
         self._log = logging.getLogger(self._name)
+        self._devnode = devnode
 
     def _dbg(self, message): # pylint: disable=no-self-use
         """Print a debug message."""
@@ -67,7 +68,22 @@ class _Transport(object):
             return result.splitlines()[0]
         return ''
 
+    def ioctl(self, fd, operation):
+        """
+        Execute specific IOCTL to ensure that we are dealing with the expected type of character
+        device.
+        """
+
+        try:
+            ioctl(fd, operation)
+        except IOError as err:
+            if err.errno == os.errno.ENOTTY:
+                raise Error("'%s' is not a %s device" % (self._devnode, self._name))
+            raise Error("ioctl '%#X' for device '%s' failed: %s" % (operation, self._devnode, err))
+
+
 USBTMC_IOCTL_INDICATOR_PULSE = 0x5b01
+# Clear the device's input and output buffers
 USBTMC_IOCTL_CLEAR = 0x5b02
 USBTMC_IOCTL_ABORT_BULK_OUT = 0x5b03
 USBTMC_IOCTL_ABORT_BULK_IN = 0x5b04
@@ -86,10 +102,9 @@ class USBTMC(_Transport):
         transport.
         """
 
-        self._devnode = devnode
         self._fd = None
 
-        super(USBTMC, self).__init__()
+        super(USBTMC, self).__init__(devnode)
 
         try:
             self._fd = os.open(self._devnode, os.O_RDWR)
@@ -98,7 +113,7 @@ class USBTMC(_Transport):
 
         # Make sure the device is a USBTMC device by invoking a USBTMC-specific IOCTL and checking
         # that it is supported.
-        self.ioctl(USBTMC_IOCTL_CLEAR)
+        super(USBTMC, self).ioctl(self._fd, USBTMC_IOCTL_CLEAR)
 
     def __del__(self):
         """The class destructor."""
@@ -128,16 +143,3 @@ class USBTMC(_Transport):
         super(USBTMC, self).read(size, data)
 
         return data
-
-    def ioctl(self, operation):
-        """
-        Execute specific IOCTL to ensure that we are dealing with the expected type of character
-        device.
-        """
-
-        try:
-            ioctl(self._fd, operation)
-        except IOError as err:
-            if err.errno == os.errno.ENOTTY:
-                raise Error("'%s' is not a USBTMC device" % self._devnode)
-            raise Error("ioctl '%#X' for device '%s' failed: %s" % (operation, self._devnode, err))
