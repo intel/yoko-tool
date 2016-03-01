@@ -82,13 +82,8 @@ class _Transport(object):
             raise Error("ioctl '%#X' for device '%s' failed: %s" % (operation, self._devnode, err))
 
 
-USBTMC_IOCTL_INDICATOR_PULSE = 0x5b01
 # Clear the device's input and output buffers
-USBTMC_IOCTL_CLEAR = 0x5b02
-USBTMC_IOCTL_ABORT_BULK_OUT = 0x5b03
-USBTMC_IOCTL_ABORT_BULK_IN = 0x5b04
-USBTMC_IOCTL_CLEAR_OUT_HALT = 0x5b06
-USBTMC_IOCTL_CLEAR_IN_HALT = 0x5b07
+_USBTMC_IOCTL_CLEAR = 0x5b02
 
 class USBTMC(_Transport):
     """
@@ -113,7 +108,7 @@ class USBTMC(_Transport):
 
         # Make sure the device is a USBTMC device by invoking a USBTMC-specific IOCTL and checking
         # that it is supported.
-        super(USBTMC, self).ioctl(self._fd, USBTMC_IOCTL_CLEAR)
+        super(USBTMC, self).ioctl(self._fd, _USBTMC_IOCTL_CLEAR)
 
     def __del__(self):
         """The class destructor."""
