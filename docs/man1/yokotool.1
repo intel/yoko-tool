@@ -31,8 +31,8 @@ The command-line interface is based on subcommands. Each subcommand supports the
 \fB{-h | --help}\fP option which is meant to provide a quick help usage.
 
 The first parameter must always be the device node. The only exception is when
-using \fB{-h | --help}\fP, \fB--version\fP or  \fB--list-models\fP options,
-in which case the device node becomes optional.
+using \fB{-h | --help}\fP and \fB--version\fP options, in which case the device
+node becomes optional.
 
 The device model and device node parameters can be specified within
 \fB/home/$USER/.yokotool.conf\fP configuration file, which spares you the need to
@@ -94,11 +94,6 @@ Print debugging information.
 .B -m, --devmodel
 .RS
 The power meter device model (e.g., wt310).
-.RE
-
-.B --list-models
-.RS
-List the supported power meter device models.
 .RE
 
 .B Supported commands
