@@ -4,11 +4,11 @@ Upstream-Contact: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 Source: https://github.com/01org/yoko-tool
 
 Files: *
-Copyright: © 2014-2015 Intel, Inc.
+Copyright: © 2014-2016 Intel, Inc.
 License: GPL-2
 
 Files: debian/*
-Copyright: © 2014-2015 Intel, Inc.
+Copyright: © 2014-2016 Intel, Inc.
 License: GPL-2
 
 License: GPL-2

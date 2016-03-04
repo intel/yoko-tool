@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ts=4 sw=4 tw=100 et ai si
 #
-# Copyright (c) 2014-2015 Intel, Inc.
+# Copyright (c) 2014-2016 Intel, Inc.
 # License: GPLv2
 # Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 #
