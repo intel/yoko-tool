@@ -412,7 +412,7 @@ def parse_arguments():
 
     # The '--devmodel' option
     text = "the power meter device model (e.g., %s)" % SUPPORTED_DEVMODELS[0]
-    pars.add_argument("-m", "--devmodel", help=text)
+    pars.add_argument("-m", "--devmodel", default="wt310", help=text)
 
     subpars = pars.add_subparsers(title="supported commands", metavar="")
 
@@ -975,8 +975,8 @@ def main():
     args.config = load_config()
     merge_args()
 
-    if not str(args.devmodel).lower() in SUPPORTED_DEVMODELS:
-        log.error("\"%s\" power meter device model is not supported, please, specify the adequate "
+    if args.devmodel.lower() not in SUPPORTED_DEVMODELS:
+        log.error("\"%s\" power meter device model is not supported, please, use -m to specify the "
                   "model (e.g., %s) or save it to \"/home/$USER/.yokotool.conf\" file, "
                   "use -h for help", args.devmodel, SUPPORTED_DEVMODELS[0])
         raise SystemExit(1)
