@@ -1,7 +1,4 @@
 Fri Mar  4 12:11:00 CEST 2016 - Helia Correia <helia.correia@linux.intel.com> 1.1
-
-yoko-tools (1.1) trusty; urgency=low
-
 - Bug fix: Remove "arg" useless parameter since it would provoke the following error:
            TypeError: integration_wait_subcommand() takes exactly 2 arguments (1 given)
 
