@@ -1,3 +1,8 @@
+ Mar  21 09:09:37 CEST 2016 - Helia Correia <helia.correia@linux.intel.com> 1.2
+- It's generally a bad approach to break what worked previously and to make users re-learn how to
+    use a software. The introduction of -m | --devmodel had such an unfortunate impact on Yoko tool.
+    Reverted this behavior by setting a default value to the command-line argument.
+
 Fri Mar  4 12:11:00 CEST 2016 - Helia Correia <helia.correia@linux.intel.com> 1.1
 - Bug fix: Remove "arg" useless parameter since it would provoke the following error:
            TypeError: integration_wait_subcommand() takes exactly 2 arguments (1 given)

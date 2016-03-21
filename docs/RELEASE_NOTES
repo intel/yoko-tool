@@ -1,3 +1,15 @@
+Release 1.2
+~~~~~~~~~~~
+
+yoko-tools (1.2) trusty; urgency=low
+
+1. Set a default value to -m | --devmodel command-line argument
+
+    It's generally a bad approach to break what worked previously and to make users re-learn how to
+    use a software. The introduction of -m | --devmodel had such an unfortunate impact on Yoko tool.
+    Reverted this behavior by setting a default value to the command-line argument.
+
+
 Release 1.1
 ~~~~~~~~~~~
 
