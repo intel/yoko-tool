@@ -791,7 +791,7 @@ def integration_command(meter):
             if integ_timer == "0" and integ_mode == "continuous":
                 log.error("Please, set a timer value higher than \"%s\" to start integration in "
                          "\"%s\" mode.", integ_timer, integ_mode)
-            return
+                return
         meter.command(args.subcmd["command"])
     elif args.subcmd["name"] == "state" or args.value == None:
         log.info("%s", meter.command(args.subcmd["get-cmd"]))
