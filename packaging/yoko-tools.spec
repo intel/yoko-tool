@@ -4,7 +4,7 @@
 
 Name: yoko-tools
 Summary: Tools to control the Yokogawa WT310 power meter
-Version: 1.2
+Version: 1.3
 
 %if 0%{?opensuse_bs}
 Release: %{rc_str}.<CI_CNT>.<B_CNT>

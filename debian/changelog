@@ -1,3 +1,19 @@
+yoko-tools (1.3) trusty; urgency=low
+
+  * yokotool: fix integration start
+
+    Fix incorrect indentation introduced in:
+    80794a0 yokotool: check integration timer is > 0 when mode is "continuous"
+
+  * yokotool: BUG FIX: enable users to set an integration timer value
+
+    get_argument_help() usually returns the valid values for a property. So we used to rely on this
+    function to verify the data before assigning it to a property.
+    However, integration timer was an exception to that rule. With this patch we verify the timer
+    value against a range of integers instead of a help message.
+
+ -- Helia Correia <helia.correia@linux.intel.com>  Mon, 16 May 2016 16:25:12 +0100
+
 yoko-tools (1.2) trusty; urgency=low
 
   * Set a default value to -m | --devmodel command-line argument
