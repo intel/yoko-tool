@@ -33,7 +33,7 @@ are also python modules which provide the power meter control APIs for external 
 %install
 rm -rf %{buildroot}
 
-%{__python} setup.py install --prefix=%{_prefix} --root=%{buildroot}
+python3 setup.py install --prefix=%{_prefix} --root=%{buildroot}
 
 mkdir -p %{buildroot}/%{_mandir}/man1
 install -m644 docs/man1/yokotool.1 %{buildroot}/%{_mandir}/man1
@@ -41,8 +41,10 @@ install -m644 docs/man1/yokotool.1 %{buildroot}/%{_mandir}/man1
 %files
 %defattr(-,root,root,-)
 %dir /usr/lib/python*/site-packages/yokotools
+%dir /usr/lib/python*/site-packages/yokotools/__pycache__
 /usr/lib/python*/site-packages/yoko_tools*
 /usr/lib/python*/site-packages/yokotools/*
+/usr/lib/python*/site-packages/yokotools/__pycache__/*
 %{_bindir}/*
 
 %doc docs/RELEASE_NOTES COPYING
