@@ -32,7 +32,7 @@ _ELEMENTS_COUNT = 1
 # The possible values for various power meter commands, referred to as 'assortments' in this code.
 #
 
-_HUMAN_ELECTRICAL_QUANTITIES = (
+_ELECTRICAL_QUANTITIES = (
     ('V', 'voltage'),
     ('I', 'current'),
     ('P', 'active power'),
@@ -234,7 +234,7 @@ def _verify_data_item_name(item):
         return False
 
     # Make sure the element is a valid electrical quantity
-    if split[0] not in [element[0] for element in _HUMAN_ELECTRICAL_QUANTITIES]:
+    if split[0] not in [element[0] for element in _ELECTRICAL_QUANTITIES]:
         return False
 
     return True
@@ -590,8 +590,8 @@ class WT310(PowerMeter.PowerMeter):
             # Add an initial new line character to improve both
             # formatting and readability.
             text_descr = "\n"
-            for human_elec_qty, descr in _HUMAN_ELECTRICAL_QUANTITIES:
-                text_descr += "%s - %s\n" % (human_elec_qty, descr)
+            for elec_qty, descr in _ELECTRICAL_QUANTITIES:
+                text_descr += "%s - %s\n" % (elec_qty, descr)
             self._assortments[cmd] = {
                 "verify-func" : _verify_data_item_name,
                 "text-descr"  : text_descr,
