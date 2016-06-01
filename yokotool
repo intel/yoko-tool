@@ -668,10 +668,6 @@ def set_data_items(meter, items):
     the user and configures the power meter correspondingly.
     """
 
-    if items == "?":
-        log.info("%s", meter.get_argument_help("set-data-item1"))
-        return
-
     items = [s.strip() for s in items.split(",")]
     if len(items) > meter.max_data_items:
         log.error("too many data items to read, please, specify at most %s items",
