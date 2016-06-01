@@ -410,6 +410,10 @@ class PowerMeter(object):
 
         return True
 
+    def _query(self, data):
+        """Wrapper around 'transport.queryline()' method to simplify our code."""
+        return self._transport.queryline(data + "\n").strip()
+
     def command(self, cmd, arg=None):
         """
         Execute the power meter command 'cmd' with argument 'arg' if it is not null. Return the
@@ -446,10 +450,6 @@ class PowerMeter(object):
             return ", ".join(self._assortments[cmd]["assortment"])
         else:
             return "no help text for \"%s\", please report a bug" % cmd
-
-    def _query(self, data):
-        """Wrapper around 'transport.queryline()' method to simplify our code."""
-        return self._transport.queryline(data + "\n").strip()
 
 #
 # Constants used by children of the PowerMeter class
