@@ -121,7 +121,7 @@ class USBTMC(_Transport):
         """Write command directly to the device."""
 
         try:
-            os.write(self._fd, data)
+            os.write(self._fd, bytes(data, 'utf-8'))
         except OSError as err:
             raise Error("error while writing to device '%s': %s" % (self._devnode, err))
 
@@ -131,7 +131,7 @@ class USBTMC(_Transport):
         """Read an arbitrary amount of data directly from the device."""
 
         try:
-            data = os.read(self._fd, size)
+            data = os.read(self._fd, size).decode("utf-8")
         except OSError as err:
             raise Error("error while reading from device '%s': %s" % (self._devnode, err))
 
