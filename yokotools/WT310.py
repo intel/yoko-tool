@@ -585,10 +585,8 @@ class WT310(PowerMeter.PowerMeter):
         # Add verification functions for data item commands
         for item in range(1, self.max_data_items + 1):
             cmd = "set-data-item%d" % item
-            # test_descr stores the list of human electrical quantities
-            # that is displayed to user, as help message.
-            # Add an initial new line character to improve both
-            # formatting and readability.
+            # 'text_descr' depicts the list of data items that users can read. The initial new line
+            # character improves formatting and readability.
             text_descr = "\n"
             for elec_qty, descr in _ELECTRICAL_QUANTITIES:
                 text_descr += "%s - %s\n" % (elec_qty, descr)
