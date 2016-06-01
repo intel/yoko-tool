@@ -359,7 +359,7 @@ class PowerMeter(object):
         if cmd in self._state_checks:
             self._state_checks[cmd](cmd)
 
-        if not isinstance(raw_cmd, basestring):
+        if not isinstance(raw_cmd, str):
             return raw_cmd(cmd, arg)
 
         # Send the command to the power meter
@@ -421,11 +421,11 @@ class PowerMeter(object):
         can be of any type since 'command()' handles the typecast to string.
         """
 
-        if not isinstance(cmd, basestring) or cmd not in self.commands:
+        if not isinstance(cmd, str) or cmd not in self.commands:
             raise Error("bad command \"%s\"" % cmd)
 
         # We allow 'arg' to be of different types and convert it into a string
-        if arg != None and not isinstance(arg, basestring):
+        if arg != None and not isinstance(arg, str):
             arg = str(arg)
 
         cmd_dict = self.commands[cmd]
