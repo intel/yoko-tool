@@ -405,7 +405,7 @@ class PowerMeter(object):
 
         if "verify-func" in self._assortments[cmd]:
             func = self._assortments[cmd]["verify-func"]
-            if not isinstance(arg, basestring) or not func(arg):
+            if not func(arg):
                 raise ErrorBadArgument(arg, self._assortments[cmd]["text-descr"])
 
         return True
