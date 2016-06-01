@@ -19,6 +19,7 @@ URL: https://github.com/01org/yoko-tool
 Source0: %{name}_%{version}.tar.gz
 
 BuildRequires: python-distribute
+Requires: python3-colorama
 
 %description
 This package provides yokotool - a Linux command-line tool for controlling the Yokogawa WT310 power

@@ -35,6 +35,7 @@ import os
 import sys
 import time
 import socket
+import colorama
 import logging
 import argparse
 import configparser
@@ -54,13 +55,11 @@ log = logging.getLogger()
 args = None
 
 # Esc-sequences for colored output
-# pylint: disable=anomalous-backslash-in-string
-ESC_RED = '\033[91m'
-ESC_YELLOW = '\033[93m'
-ESC_GREEN = '\033[92m'
-ESC_END = '\033[0m'
-ESC_BRIGHT_WHITE = '\033[97m'
-# pylint: enable=anomalous-backslash-in-string
+ESC_RED = colorama.Fore.RED
+ESC_YELLOW = colorama.Fore.YELLOW
+ESC_GREEN = colorama.Fore.GREEN
+ESC_WHITE_BRIGHT = colorama.Fore.WHITE + colorama.Style.BRIGHT
+ESC_END = colorama.Style.RESET_ALL
 
 # This data-structure describes the 'get' and 'set' commands and the properties they support
 #    * name   : name of the property to get or change
@@ -582,10 +581,10 @@ def setup_logger(logobj, loglevel, info_stream=sys.stdout, error_stream=sys.stde
 
             logging.Formatter.__init__(self, fmt, datefmt)
 
-            self._orig_fmt = self._fmt
+            self._orig_fmt = self._style._fmt
             # Prefix with green-colored time-stamp, module name and line number.
             self._dbg_fmt = "[" + esc_green + "%(asctime)s" + esc_end + \
-                            "] [%(module)s,%(lineno)d] " + self._fmt
+                            "] [%(module)s,%(lineno)d] " + self._style._fmt
 
         def format(self, record):
             """
@@ -595,14 +594,14 @@ def setup_logger(logobj, loglevel, info_stream=sys.stdout, error_stream=sys.stde
 
             # Add a time-stamp to debug messages
             if record.levelno == logging.DEBUG:
-                self._fmt = self._dbg_fmt
+                self._style._fmt = self._dbg_fmt
 
             # Leave the info messages without any formatting
             if record.levelno == logging.INFO:
-                self._fmt = "%(message)s"
+                self._style._fmt = "%(message)s"
 
             result = logging.Formatter.format(self, record)
-            self._fmt = self._orig_fmt
+            self._style._fmt = self._orig_fmt
             return result
 
     class MyFilter(logging.Filter):
@@ -649,7 +648,7 @@ def info_command(meter):
     for prop in PROPERTIES:
         value = meter.command(prop["get-cmd"])
         if sys.stdout.isatty():
-            value = ESC_BRIGHT_WHITE + "%s" % value + ESC_END
+            value = ESC_WHITE_BRIGHT + "%s" % value + ESC_END
         log.info("%s: %s", prop["help"].capitalize(), value)
 
 def get_command(meter):
