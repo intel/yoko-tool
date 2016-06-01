@@ -37,7 +37,7 @@ import time
 import socket
 import logging
 import argparse
-import ConfigParser
+import configparser
 from collections import namedtuple
 
 from yokotools import WT310, PowerMeter, transport
@@ -928,12 +928,12 @@ def load_config():
 
     try:
         with open(cfgpath, "r") as f:
-            cfgfile = ConfigParser.ConfigParser()
+            cfgfile = configparser.ConfigParser()
             cfgfile.readfp(f)
             try:
                 config["devmodel"] = cfgfile.get("Connection", "device_model")
                 config["devnode"] = cfgfile.get("Connection", "device_node")
-            except ConfigParser.Error as error:
+            except configparser.Error as error:
                 log.error("could not get data from %s file: %s", cfgpath, error)
                 raise SystemExit(1)
             finally:
