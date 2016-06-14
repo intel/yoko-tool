@@ -415,6 +415,7 @@ def parse_arguments():
     pars.add_argument("-m", "--devmodel", default="wt310", help=text)
 
     subpars = pars.add_subparsers(title="supported commands", metavar="")
+    subpars.required = True
 
     #
     # Create a parser for the 'info' command
@@ -440,6 +441,7 @@ def parse_arguments():
     pars1 = subpars.add_parser("get", help=allcmds["get"]["help"],
                                description=allcmds["get"]["descr"])
     subpars1 = pars1.add_subparsers(title="properties", metavar="")
+    subpars1.required = True
 
     # Add properties as subcommands
     for prop in PROPERTIES:
@@ -454,6 +456,7 @@ def parse_arguments():
     pars1 = subpars.add_parser("set", help=allcmds["set"]["help"],
                                description=allcmds["set"]["descr"])
     subpars1 = pars1.add_subparsers(title="properties", metavar="")
+    subpars1.required = True
 
     # Add properties as subcommands
     for prop in PROPERTIES:
@@ -473,6 +476,7 @@ def parse_arguments():
     pars1 = subpars.add_parser("integration", help=allcmds["integration"]["help"],
                                description=allcmds["integration"]["descr"])
     subpars1 = pars1.add_subparsers(title="subcommands", metavar="")
+    subpars1.required = True
 
     # Add 'integration' subcommands and properties
     for subcmd in INTEGRATION_SUBCMDS_PROPS:
@@ -493,6 +497,7 @@ def parse_arguments():
     pars1 = subpars.add_parser("smoothing", help=allcmds["smoothing"]["help"],
                                description=allcmds["smoothing"]["descr"])
     subpars1 = pars1.add_subparsers(title="properties", metavar="")
+    subpars1.required = True
 
     # Add 'smoothing' properties
     for subcmd in SMOOTHING_PROPERTIES:
