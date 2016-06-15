@@ -554,13 +554,16 @@ def parse_arguments():
 def setup_logger(logobj, loglevel, info_stream=sys.stdout, error_stream=sys.stderr):
     """
     A helper function which sets up and configures the 'logobj' logger. The log level is initialized
-    to 'loglevel'. The default is that 'info' messages go to standard output stream while 'debug',
-    'warning' and 'error' messages go to standard error stream. However, the 'stdout' and 'stderr'
-    parameters can be used to define custom streams for the messages.
+    to 'loglevel'. The default is that 'info' messages go to the standard output stream while
+    'debug', 'warning' and 'error' messages go to the standard error stream. However, 'info_stream'
+    and 'error_stream' parameters can be used to define custom streams for the messages.
     """
 
+    logobj.info_stream = info_stream
+    logobj.error_stream = error_stream
+
     # Esc-sequences for coloured output if stderr is a terminal
-    if sys.stderr.isatty():
+    if logobj.error_stream.isatty():
         esc_red = ESC_RED
         esc_yellow = ESC_YELLOW
         esc_green = ESC_GREEN
@@ -632,12 +635,12 @@ def setup_logger(logobj, loglevel, info_stream=sys.stdout, error_stream=sys.stde
 
     # Install our handlers
     formatter = MyFormatter("yokotool: %(levelname)s: %(message)s", "%H:%M:%S")
-    where = logging.StreamHandler(error_stream)
+    where = logging.StreamHandler(logobj.error_stream)
     where.setFormatter(formatter)
     where.addFilter(MyFilter((logging.ERROR, logging.WARNING, logging.DEBUG)))
     logobj.addHandler(where)
 
-    where = logging.StreamHandler(info_stream)
+    where = logging.StreamHandler(logobj.info_stream)
     where.setFormatter(formatter)
     where.addFilter(MyFilter((logging.INFO,)))
     logobj.addHandler(where)
@@ -647,7 +650,7 @@ def info_command(meter):
 
     for prop in PROPERTIES:
         value = meter.command(prop["get-cmd"])
-        if sys.stdout.isatty():
+        if log.info_stream.isatty():
             value = ESC_WHITE_BRIGHT + "%s" % value + ESC_END
         log.info("%s: %s", prop["help"].capitalize(), value)
 
