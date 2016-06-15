@@ -890,13 +890,14 @@ def listen_command(meter):
             # Wait for a client connection
             client, _ = sock.accept()
             # Create the socket-based file needed for the logger
-            socket_fobj = client.makefile()
+            socket_fobj = client.makefile(mode="w")
             # From now on, redirect all the output to the client.
             setup_logger(log, logging.INFO, info_stream=socket_fobj,
                          error_stream=socket_fobj)
 
         command = client.recv(sock_spec.bufsize) # pylint: disable=no-member
         if command:
+            command = command.decode('utf-8')
             # Commands received via socket are processed by 'parse_arguments()'
             sys.argv = sys.argv[0:1] + command.split()
 
