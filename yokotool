@@ -895,29 +895,27 @@ def listen_command(meter):
                          error_stream=socket_fobj)
 
         command = client.recv(sock_spec.bufsize) # pylint: disable=no-member
-        if command:
+        try:
             command = command.decode('utf-8')
-            # Commands received via socket are processed by 'parse_arguments()'
             sys.argv = sys.argv[0:1] + command.split()
+            args = parse_arguments()
+            args.config = load_config()
+            merge_args()
 
-            try:
-                args = parse_arguments()
-                args.config = load_config()
-                merge_args()
-                log.setLevel(args.loglevel)
-                if args.func == listen_command:
-                    raise Error("the 'listen' command cannot be used in the client-server mode")
-                args.func(meter)
-            except (PowerMeter.ErrorBadArgument, Error) as err:
-                log.error(err)
-                drop_client(client, socket_fobj)
-                client = None
-            except:
-                drop_client(client, socket_fobj)
-                raise
-        else:
+            log.setLevel(args.loglevel)
+
+            if args.func == listen_command:
+                raise Error("the 'listen' command cannot be used in the client-server mode")
+            args.func(meter)
+        # Drop the client and wait for new connections
+        except (PowerMeter.ErrorBadArgument, Error, UnicodeDecodeError) as err:
+            log.error(err)
             drop_client(client, socket_fobj)
             client = None
+        # Drop the client and exit the server
+        except:
+            drop_client(client, socket_fobj)
+            raise
 
 def load_config():
     """
