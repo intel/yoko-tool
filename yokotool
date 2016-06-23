@@ -250,14 +250,12 @@ CMDLINE_COMMANDS = {
     },
 }
 
-# This data structure describes the 'integration' command
+# This data structure describes the subcommands of 'integration' command
 #    * name   : name of the subcommand
 #    * command: corresponding power meter's command (if any)
-#    * get-cmd: power meter's command to get the property
-#    * set-cmd: power meter's command to set the property
-#    * help   : short/one line subcommand/property description
-#    * descr  : description of the subcommand/property
-INTEGRATION_SUBCMDS_PROPS = (
+#    * help   : short/one line subcommand description
+#    * descr  : description of the subcommand
+INTEGRATION_SUBCMDS = (
     {
         "name"    : "wait",
         "command" : "start-integration",
@@ -282,6 +280,15 @@ INTEGRATION_SUBCMDS_PROPS = (
         "help"    : "reset integration",
         "descr"   : "Reset integration.",
     },
+)
+
+# This data structure describes the properties of 'integration' command
+#    * name   : name of the property
+#    * get-cmd: power meter's command to get the property
+#    * set-cmd: power meter's command to set the property
+#    * help   : short/one line property description
+#    * descr  : description of the property
+INTEGRATION_PROPERTIES = (
     {
         "name"     : "state",
         "get-cmd"  : "get-integration-state",
@@ -374,7 +381,9 @@ def get_subcmds_help(cmd):
 
     subcmds = []
     if cmd == "integration":
-        for item in INTEGRATION_SUBCMDS_PROPS:
+        for item in INTEGRATION_SUBCMDS:
+            subcmds.append(item["name"])
+        for item in INTEGRATION_PROPERTIES:
             subcmds.append(item["name"])
     elif cmd in ("get", "set"):
         for item in PROPERTIES:
@@ -488,18 +497,25 @@ def parse_arguments():
     subpars1 = pars1.add_subparsers(title="subcommands", metavar="")
     subpars1.required = True
 
-    # Add 'integration' subcommands and properties
-    for subcmd in INTEGRATION_SUBCMDS_PROPS:
+    # Add 'integration' subcommands
+    for subcmd in INTEGRATION_SUBCMDS:
         pars2 = subpars1.add_parser(subcmd["name"], help=subcmd["help"],
                                     description=subcmd["descr"])
         if subcmd["name"] == "wait":
             pars2.set_defaults(func=integration_wait_subcommand)
         else:
-            if subcmd["name"] in ("mode", "timer"):
-                text = "the value to assign to \"integration %s\"" % subcmd["name"]
-                pars2.add_argument("value", nargs="?", default=None, help=text)
             pars2.set_defaults(subcmd=subcmd)
-            pars2.set_defaults(func=integration_command)
+            pars2.set_defaults(func=integration_subcommands)
+
+    # Add 'integration' properties
+    for prop in INTEGRATION_PROPERTIES:
+        pars2 = subpars1.add_parser(prop["name"], help=prop["help"],
+                                    description=prop["descr"])
+        if prop["name"] in ("mode", "timer"):
+            text = "the value to assign to \"integration %s\"" % prop["name"]
+            pars2.add_argument("value", nargs="?", default=None, help=text)
+        pars2.set_defaults(prop=prop)
+        pars2.set_defaults(func=integration_properties)
 
     #
     # Create a parser for the 'smoothing' command
@@ -776,7 +792,7 @@ def read_command(meter):
 def integration_wait_subcommand(meter):
     """
     This function implements the 'integration wait' subcommand. The implementation is very trivial
-    since we just poll the integration status. This could be implemented using WT310 commands, but
+    since we just poll the integration state. This could be implemented using WT310 commands, but
     the USBTMC driver times-out in 5 seconds.
     """
 
@@ -789,37 +805,38 @@ def integration_wait_subcommand(meter):
         # to do better here and it did not feel important.
         time.sleep(1)
 
-def integration_command(meter):
-    """This function implements the 'integration' command."""
+def integration_subcommands(meter):
+    """This function runs the subcommands of 'integration' command."""
 
-    # It is convenient for the user to be able to reset integration from any state, so allow
-    # resetting without stopping.
+    # When integration is started, spare users the need to stop it before resetting.
     integ_state = meter.command("get-integration-state")
     if args.subcmd["name"] == "reset" and integ_state == "start":
         meter.command("stop-integration")
 
-    if "command" in args.subcmd:
-        if args.subcmd["name"] == "start":
-            integ_timer = meter.command("get-integration-timer")
-            integ_mode = meter.command("get-integration-mode")
-            if integ_timer == "0" and integ_mode == "continuous":
-                log.error("Please, set a timer value higher than \"%s\" to start integration in "
-                         "\"%s\" mode.", integ_timer, integ_mode)
-                return
-        meter.command(args.subcmd["command"])
-    elif args.subcmd["name"] == "state" or args.value == None:
-        log.info("%s", meter.command(args.subcmd["get-cmd"]))
+    # Integration cannot start in 'continuous' mode when 'timer' is not set
+    integ_timer = meter.command("get-integration-timer")
+    integ_mode = meter.command("get-integration-mode")
+    if args.subcmd["name"] == "start" and integ_timer == "0" and integ_mode == "continuous":
+        log.error("Please, set a timer value higher than \"%s\" to start integration in "
+                  "\"%s\" mode.", integ_timer, integ_mode)
+        return
+
+    meter.command(args.subcmd["command"])
+
+def integration_properties(meter):
+    """This function reads or writes a value to the properties of 'integration' command."""
+
+    # 'state' is a particular property which value can only be read and not written
+    if args.prop["name"] == "state" or args.value == None:
+        log.info("%s", meter.command(args.prop["get-cmd"]))
     else:
-        args_list = meter.get_argument_help(args.subcmd["set-cmd"])
+        args_list = meter.get_argument_help(args.prop["set-cmd"])
         if args.value == "?":
             log.info("%s", args_list)
-        elif str(args.value) in args_list:
-            meter.command(args.subcmd["set-cmd"], args.value)
-        elif args.subcmd["name"] == "timer":
-            if is_int(args.value) and 0 <= int(args.value) <= 36000000:
-                meter.command(args.subcmd["set-cmd"], args.value)
-            else:
-                raise PowerMeter.ErrorBadArgument(args.value, args_list)
+        elif str(args.value) in args_list or is_int(args.value) and 0 <= int(args.value) <= 36000000:
+            meter.command(args.prop["set-cmd"], args.value)
+        else:
+            raise PowerMeter.ErrorBadArgument(args.value, args_list)
 
 def smoothing_command(meter):
     """This function implements the 'smoothing' command."""
