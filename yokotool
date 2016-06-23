@@ -815,10 +815,11 @@ def integration_command(meter):
             log.info("%s", args_list)
         elif str(args.value) in args_list:
             meter.command(args.subcmd["set-cmd"], args.value)
-        elif args.subcmd["name"] == "timer" and 0 <= int(args.value) <= 36000000:
-            meter.command(args.subcmd["set-cmd"], args.value)
-        else:
-            raise PowerMeter.ErrorBadArgument(args.value, args_list)
+        elif args.subcmd["name"] == "timer":
+            if is_int(args.value) and 0 <= int(args.value) <= 36000000:
+                meter.command(args.subcmd["set-cmd"], args.value)
+            else:
+                raise PowerMeter.ErrorBadArgument(args.value, args_list)
 
 def smoothing_command(meter):
     """This function implements the 'smoothing' command."""
