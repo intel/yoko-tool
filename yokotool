@@ -386,6 +386,17 @@ def get_subcmds_help(cmd):
 
     return ", ".join(subcmds)
 
+def is_int(value):
+    """
+    Return 'True' if 'value' can be converted into integer using 'int()' and 'False' otherwise.
+    """
+
+    try:
+        value = int(value)
+    except (ValueError, TypeError):
+        return False
+    return True
+
 def parse_arguments():
     """A helper function which parses the input arguments."""
 
@@ -842,11 +853,11 @@ def configure_sock(port):
     entry point for commands.
     """
 
-    try:
-        port = int(port)
-    except ValueError:
+    if not is_int(port):
         log.error("wrong TCP port %s, please, provide an integer value", port)
         raise SystemExit(1)
+    else:
+        port = int(port)
 
     if (port < 1) | (port > 65535):
         log.error("wrong TCP port %s, please, provide a value ranging from 1 through 65535", port)
