@@ -41,7 +41,7 @@ import argparse
 import configparser
 from collections import namedtuple
 
-from yokotools import WT310, PowerMeter, Transport
+from yokotools import WT310, YokoBase, Transport
 
 VERSION = "1.3"
 
@@ -836,7 +836,7 @@ def integration_properties(meter):
         elif str(args.value) in args_list or is_int(args.value) and 0 <= int(args.value) <= 36000000:
             meter.command(args.prop["set-cmd"], args.value)
         else:
-            raise PowerMeter.ErrorBadArgument(args.value, args_list)
+            raise YokoBase.ErrorBadArgument(args.value, args_list)
 
 def smoothing_command(meter):
     """This function implements the 'smoothing' command."""
@@ -850,7 +850,7 @@ def smoothing_command(meter):
         elif args.value in args_list:
             meter.command(args.subcmd["set-cmd"], args.value)
         else:
-            raise PowerMeter.ErrorBadArgument(args.value, args_list)
+            raise YokoBase.ErrorBadArgument(args.value, args_list)
 
 def calibrate_command(meter):
     """This function implements the 'calibrate' command."""
@@ -940,7 +940,7 @@ def listen_command(meter):
                 raise Error("the 'listen' command cannot be used in the client-server mode")
             args.func(meter)
         # Drop the client and wait for new connections
-        except (PowerMeter.ErrorBadArgument, Error, UnicodeDecodeError) as err:
+        except (YokoBase.ErrorBadArgument, Error, UnicodeDecodeError) as err:
             log.error(err)
             drop_client(client, socket_fobj)
             client = None
@@ -1018,7 +1018,7 @@ def main():
         try:
             transport_obj = Transport.USBTMC(args.devnode)
             meter = WT310.WT310(transport_obj)
-        except (PowerMeter.Error, Transport.Error) as err:
+        except (YokoBase.Error, Transport.Error) as err:
             log.error(err)
             raise SystemExit(1)
 
@@ -1026,10 +1026,10 @@ def main():
 
         try:
             args.func(meter)
-        except PowerMeter.Error as err:
+        except YokoBase.Error as err:
             log.error(err)
             raise SystemExit(1)
-        except PowerMeter.ErrorBadArgument as err:
+        except YokoBase.ErrorBadArgument as err:
             log.error(err)
             raise SystemExit(1)
         except KeyboardInterrupt:

@@ -23,7 +23,7 @@ power meters, e.g., WT210.
 """
 
 import re
-from yokotools import PowerMeter
+from yokotools import YokoBase
 
 _MAX_DATA_ITEMS = 10
 _ELEMENTS_COUNT = 1
@@ -335,9 +335,9 @@ _WT310_COMMANDS = {
     ':STAT:EESR?': 'get-eesr'
 }
 
-class WT310(PowerMeter.PowerMeter):
+class WT310(YokoBase.YokoBase):
     """
-    This class implements Yokogawa WT310 specialization of the "PowerMeter"
+    This class implements Yokogawa WT310 specialization of the 'YokoBase'
     class. Basically, we implement the command map, and the assortments,
     tweaks, and state checks dictionaries.
     """
@@ -359,7 +359,7 @@ class WT310(PowerMeter.PowerMeter):
         # so clear 2 times.
         try:
             self._command("clear")
-        except PowerMeter.Error:
+        except YokoBase.Error:
             pass
         self._command("clear")
 
@@ -403,7 +403,7 @@ class WT310(PowerMeter.PowerMeter):
         to WT310 commands.
         """
 
-        self._command_map.update(PowerMeter.populate(_WT310_COMMANDS))
+        self._command_map.update(YokoBase.populate(_WT310_COMMANDS))
         self._command_map.update({
             "wait-for-data-update"   : self._wait_for_data_update,
         })
@@ -462,10 +462,10 @@ class WT310(PowerMeter.PowerMeter):
                 ),
             },
             "set-current-auto-range" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-voltage-auto-range" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-crest-factor" : {
                 "assortment" : (
@@ -484,13 +484,13 @@ class WT310(PowerMeter.PowerMeter):
                 ),
             },
             "set-line-filter" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-freq-filter" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-smoothing-status" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-smoothing-type" : {
                 "assortment" : (
@@ -533,13 +533,13 @@ class WT310(PowerMeter.PowerMeter):
                 ),
             },
             "set-hold" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-max-hold" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-keys-locking" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-display-digits" : {
                 "assortment" : (
@@ -548,7 +548,7 @@ class WT310(PowerMeter.PowerMeter):
                 ),
             },
             "set-remote-mode" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-compat-mode" : {
                 "assortment" : (
@@ -557,13 +557,13 @@ class WT310(PowerMeter.PowerMeter):
                 ),
             },
             "set-verbose-errors" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-headers" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-verbose-mode" : {
-                "assortment" : PowerMeter.ON_OFF_RANGE,
+                "assortment" : YokoBase.ON_OFF_RANGE,
             },
             "set-integration-timer" : {
                 "verify-func" : _verify_integration_time,
@@ -700,7 +700,7 @@ class WT310(PowerMeter.PowerMeter):
 
         integ_state = self.command("get-integration-state")
         if integ_state not in allowed_states:
-            raise PowerMeter.Error("current integration state is \"%s\", "
+            raise YokoBase.Error("current integration state is \"%s\", "
                                    "but \"%s\" can only be executed in the "
                                    "following state(s): %s"
                         % (integ_state, cmd, ", ".join(allowed_states)))

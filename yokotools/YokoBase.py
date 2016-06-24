@@ -281,7 +281,7 @@ _COMMANDS = {
     },
 }
 
-class PowerMeter(object):
+class YokoBase(object):
     """
     This is the base class for all power meters. Each specific type of power meter should be derived
     from this class.
@@ -452,7 +452,7 @@ class PowerMeter(object):
             return "no help text for \"%s\", please report a bug" % cmd
 
 #
-# Constants used by children of the PowerMeter class
+# Constants used by children of the YokoBase class
 #
 
 ON_OFF_RANGE = (
