@@ -17,7 +17,7 @@
 
 """This module allows accessing and controlling power meters."""
 
-from yokotools import transport
+from yokotools import Transport
 
 class ErrorBadArgument(Exception):
     """
@@ -371,7 +371,7 @@ class PowerMeter(object):
         if has_response:
             try:
                 response = self._query(sent_cmd)
-            except transport.Error as err:
+            except Transport.Error as err:
                 raise Error("sent command \"%s\" but failed to read the power meter's response:\n%s"
                             % (sent_cmd.lstrip(), err))
 
@@ -379,7 +379,7 @@ class PowerMeter(object):
         else:
             try:
                 self._transport.write(sent_cmd + "\n")
-            except transport.Error as err:
+            except Transport.Error as err:
                 raise Error("failed to write command \"%s\" to the power meter:\n%s"
                             % (sent_cmd.lstrip(), err))
             response = None

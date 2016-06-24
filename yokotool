@@ -41,7 +41,7 @@ import argparse
 import configparser
 from collections import namedtuple
 
-from yokotools import WT310, PowerMeter, transport
+from yokotools import WT310, PowerMeter, Transport
 
 VERSION = "1.3"
 
@@ -999,9 +999,9 @@ def main():
 
     if args.devnode:
         try:
-            transport_obj = transport.USBTMC(args.devnode)
+            transport_obj = Transport.USBTMC(args.devnode)
             meter = WT310.WT310(transport_obj)
-        except (PowerMeter.Error, transport.Error) as err:
+        except (PowerMeter.Error, Transport.Error) as err:
             log.error(err)
             raise SystemExit(1)
 
