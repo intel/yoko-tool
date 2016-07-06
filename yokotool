@@ -444,6 +444,8 @@ def parse_arguments():
     pars1.add_argument("value", metavar="items", help=text)
     text = "number of times to read the data items or the read time"
     pars1.add_argument("-l", "--limit", help=text)
+    text = "timestamp in seconds since EPOCH"
+    pars1.add_argument("-t", "--timestamp", action="store_true", help=text)
 
     #
     # Create a parser for the 'get' command
@@ -767,7 +769,13 @@ def read_command(meter):
                 return
 
             meter.command("wait-for-data-update")
-            log.info(meter.command("get-data"))
+            data = meter.command("get-data")
+
+            if args.timestamp:
+                msg = "{:.3f}, {}".format(time.time(), data)
+            else:
+                msg = data
+            log.info(msg)
 
             count += 1
     except KeyboardInterrupt:
