@@ -23,7 +23,7 @@ power meters, e.g., WT210.
 """
 
 import re
-from yokotools import YokoBase
+from yokotools import _yokobase
 
 _MAX_DATA_ITEMS = 10
 _ELEMENTS_COUNT = 1
@@ -335,7 +335,7 @@ _WT310_COMMANDS = {
     ':STAT:EESR?': 'get-eesr'
 }
 
-class WT310(YokoBase.YokoBase):
+class WT310(_yokobase.YokoBase):
     """
     This class implements Yokogawa WT310 specialization of the 'YokoBase'
     class. Basically, we implement the command map, and the assortments,
@@ -359,7 +359,7 @@ class WT310(YokoBase.YokoBase):
         # so clear 2 times.
         try:
             self._command("clear")
-        except YokoBase.Error:
+        except _yokobase.Error:
             pass
         self._command("clear")
 
@@ -403,7 +403,7 @@ class WT310(YokoBase.YokoBase):
         to WT310 commands.
         """
 
-        self._command_map.update(YokoBase.populate(_WT310_COMMANDS))
+        self._command_map.update(_yokobase.populate(_WT310_COMMANDS))
         self._command_map.update({
             "wait-for-data-update"   : self._wait_for_data_update,
         })
@@ -462,10 +462,10 @@ class WT310(YokoBase.YokoBase):
                 ),
             },
             "set-current-auto-range" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-voltage-auto-range" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-crest-factor" : {
                 "assortment" : (
@@ -484,13 +484,13 @@ class WT310(YokoBase.YokoBase):
                 ),
             },
             "set-line-filter" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-freq-filter" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-smoothing-status" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-smoothing-type" : {
                 "assortment" : (
@@ -533,13 +533,13 @@ class WT310(YokoBase.YokoBase):
                 ),
             },
             "set-hold" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-max-hold" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-keys-locking" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-display-digits" : {
                 "assortment" : (
@@ -548,7 +548,7 @@ class WT310(YokoBase.YokoBase):
                 ),
             },
             "set-remote-mode" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-compat-mode" : {
                 "assortment" : (
@@ -557,13 +557,13 @@ class WT310(YokoBase.YokoBase):
                 ),
             },
             "set-verbose-errors" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-headers" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-verbose-mode" : {
-                "assortment" : YokoBase.ON_OFF_RANGE,
+                "assortment" : _yokobase.ON_OFF_RANGE,
             },
             "set-integration-timer" : {
                 "verify-func" : _verify_integration_time,
@@ -700,10 +700,9 @@ class WT310(YokoBase.YokoBase):
 
         integ_state = self.command("get-integration-state")
         if integ_state not in allowed_states:
-            raise YokoBase.Error("current integration state is \"%s\", "
-                                   "but \"%s\" can only be executed in the "
-                                   "following state(s): %s"
-                        % (integ_state, cmd, ", ".join(allowed_states)))
+            raise _yokobase.Error("current integration state is \"%s\", but \"%s\" can only be "
+                                  "executed in the following state(s): %s"
+                                  % (integ_state, cmd, ", ".join(allowed_states)))
 
     def _ongoing_integration_check(self, cmd):
         """

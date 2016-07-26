@@ -17,7 +17,7 @@
 
 """This module allows accessing and controlling power meters."""
 
-from yokotools import Transport
+from yokotools import _transport
 
 class ErrorBadArgument(Exception):
     """
@@ -371,7 +371,7 @@ class YokoBase(object):
         if has_response:
             try:
                 response = self._query(sent_cmd)
-            except Transport.Error as err:
+            except _transport.Error as err:
                 raise Error("sent command \"%s\" but failed to read the power meter's response:\n%s"
                             % (sent_cmd.lstrip(), err))
 
@@ -379,7 +379,7 @@ class YokoBase(object):
         else:
             try:
                 self._transport.write(sent_cmd + "\n")
-            except Transport.Error as err:
+            except _transport.Error as err:
                 raise Error("failed to write command \"%s\" to the power meter:\n%s"
                             % (sent_cmd.lstrip(), err))
             response = None
@@ -452,7 +452,7 @@ class YokoBase(object):
             return "no help text for \"%s\", please report a bug" % cmd
 
 #
-# Constants used by children of the YokoBase class
+# Constants used by children of the 'YokoBase' class
 #
 
 ON_OFF_RANGE = (
