@@ -18,26 +18,7 @@
 """This module allows accessing and controlling power meters."""
 
 from yokolibs import _transport
-
-class ErrorBadArgument(Exception):
-    """
-    This exception is thrown when the argument for a command is incorrect. The 'Exception' object
-    provides the 'hint' attribute which is a string describing what would be the correct argument.
-    """
-
-    def __init__(self, arg, hint):
-        # Call the class constructor first
-        super(ErrorBadArgument, self).__init__(arg, hint)
-
-        self._arg = arg
-        self.hint = hint
-
-    def __str__(self):
-        return "unacceptable argument \"%s\", use: %s" % (self._arg, self.hint)
-
-class Error(Exception):
-    """All the other error conditions cause exceptions of this type."""
-    pass
+from yokolibs._exceptions import Error, ErrorBadArgument
 
 # The power meter commands supported by this module and their properties
 #    * has-response: whether or not the power meter responds with a message to the command
