@@ -15,27 +15,26 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
-"""This module implements the exception types used by all the modules in this project."""
+"""This module implements the exception types used by all of Yoko Tool's modules."""
 
 class Error(Exception):
-    """Most of the error conditions of this project cause exceptions of this type."""
-    pass
+    """Most of the error conditions of the project cause exceptions of this type."""
 
-class ErrorBadArgument(Exception):
-    """
-    This exception is thrown when the argument for a command is incorrect. The 'Exception' object
-    provides the 'hint' attribute which is a string describing what would be the correct argument.
-    """
-
-    def __init__(self, arg, hint):
+    def __init__(self, msg):
         """The class constructor."""
 
-        # Call the class constructor first
-        super(ErrorBadArgument, self).__init__(arg, hint)
+        super(Error, self).__init__(msg)
 
-        self._arg = arg
-        self.hint = hint
+        assert(isinstance(msg, str))
+        self.msg = msg
 
     def __str__(self):
-        """Return a formatted error message."""
-        return "unacceptable argument \"%s\", use: %s" % (self._arg, self.hint)
+        """The string representation of the exception."""
+        return self.msg
+
+class ErrorBadArgument(Error):
+    """This exception is thrown when the argument for a command is incorrect."""
+
+    def __init__(self, msg):
+        """The class constructor."""
+        super(ErrorBadArgument, self).__init__(msg)

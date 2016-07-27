@@ -18,7 +18,7 @@
 """This module allows accessing and controlling power meters."""
 
 from yokolibs import _transport
-from yokolibs._exceptions import Error, ErrorBadArgument
+from yokolibs._exceptions import Error
 
 # The power meter commands supported by this module and their properties
 #    * has-response: whether or not the power meter responds with a message to the command
@@ -382,12 +382,13 @@ class YokoBase(object):
         if "assortment" in self._assortments[cmd]:
             assortment = self._assortments[cmd]["assortment"]
             if arg not in assortment:
-                raise ErrorBadArgument(arg, ", ".join(assortment))
+                raise Error("unacceptable argument \"%s\", use: %s" % (arg, ", ".join(assortment)))
 
         if "verify-func" in self._assortments[cmd]:
             func = self._assortments[cmd]["verify-func"]
             if not func(arg):
-                raise ErrorBadArgument(arg, self._assortments[cmd]["text-descr"])
+                raise Error("unacceptable argument \"%s\", use: %s"
+                            % (arg, self._assortments[cmd]["text-descr"]))
 
         return True
 

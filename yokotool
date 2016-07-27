@@ -836,7 +836,7 @@ def integration_properties(meter):
         elif str(args.value) in args_list or is_int(args.value) and 0 <= int(args.value) <= 36000000:
             meter.command(args.prop["set-cmd"], args.value)
         else:
-            raise _yokobase.ErrorBadArgument(args.value, args_list)
+            raise Error("unacceptable argument \"%s\", use: %s" % (args.value, args_list))
 
 def smoothing_command(meter):
     """This function implements the 'smoothing' command."""
@@ -850,7 +850,7 @@ def smoothing_command(meter):
         elif args.value in args_list:
             meter.command(args.subcmd["set-cmd"], args.value)
         else:
-            raise _yokobase.ErrorBadArgument(args.value, args_list)
+            raise Error("unacceptable argument \"%s\", use: %s" % (args.value, args_list))
 
 def calibrate_command(meter):
     """This function implements the 'calibrate' command."""
@@ -940,7 +940,7 @@ def listen_command(meter):
                 raise Error("the 'listen' command cannot be used in the client-server mode")
             args.func(meter)
         # Drop the client and wait for new connections
-        except (_yokobase.ErrorBadArgument, _yokobase.Error, Error, UnicodeDecodeError) as err:
+        except (_yokobase.Error, Error, UnicodeDecodeError) as err:
             log.error(err)
             drop_client(client, socket_fobj)
             client = None
@@ -1026,7 +1026,7 @@ def main():
 
         try:
             args.func(meter)
-        except (_yokobase.Error, _yokobase.ErrorBadArgument) as err:
+        except (_yokobase.Error, Error) as err:
             log.error(err)
             raise SystemExit(1)
         except KeyboardInterrupt:
