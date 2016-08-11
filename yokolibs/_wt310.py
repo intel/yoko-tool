@@ -23,7 +23,7 @@ power meters, e.g., WT210.
 """
 
 import re
-from yokotools import _yokobase
+from yokolibs import _yokobase
 
 _MAX_DATA_ITEMS = 10
 _ELEMENTS_COUNT = 1

@@ -41,7 +41,7 @@ import colorama
 import configparser
 from collections import namedtuple
 
-from yokotools import _wt310, _yokobase, _transport
+from yokolibs import _wt310, _yokobase, _transport
 
 VERSION = "1.3"
 

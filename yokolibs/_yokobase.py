@@ -17,7 +17,7 @@
 
 """This module allows accessing and controlling power meters."""
 
-from yokotools import _transport
+from yokolibs import _transport
 
 class ErrorBadArgument(Exception):
     """
