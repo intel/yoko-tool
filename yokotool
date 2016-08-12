@@ -35,9 +35,9 @@ import os
 import sys
 import time
 import socket
-import colorama
 import logging
 import argparse
+import colorama
 import configparser
 from collections import namedtuple
 
