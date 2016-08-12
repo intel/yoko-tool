@@ -940,7 +940,7 @@ def listen_command(meter):
                 raise Error("the 'listen' command cannot be used in the client-server mode")
             args.func(meter)
         # Drop the client and wait for new connections
-        except (YokoBase.ErrorBadArgument, Error, UnicodeDecodeError) as err:
+        except (YokoBase.ErrorBadArgument, YokoBase.Error, Error, UnicodeDecodeError) as err:
             log.error(err)
             drop_client(client, socket_fobj)
             client = None
