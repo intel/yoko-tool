@@ -346,7 +346,7 @@ class WT310(_yokobase.YokoBase):
         """The class constructor."""
 
         # Call the base class constructor first
-        super(WT310, self).__init__(transport_obj, _MAX_DATA_ITEMS)
+        super().__init__(transport_obj, _MAX_DATA_ITEMS)
 
         self._define_command_map()
         self._define_assortments()

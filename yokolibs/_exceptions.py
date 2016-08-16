@@ -23,7 +23,7 @@ class Error(Exception):
     def __init__(self, msg):
         """The class constructor."""
 
-        super(Error, self).__init__(msg)
+        super().__init__(msg)
 
         assert(isinstance(msg, str))
         self.msg = msg
@@ -37,4 +37,4 @@ class ErrorBadArgument(Error):
 
     def __init__(self, msg):
         """The class constructor."""
-        super(ErrorBadArgument, self).__init__(msg)
+        super().__init__(msg)

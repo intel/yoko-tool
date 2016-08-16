@@ -99,7 +99,7 @@ class USBTMC(_Transport):
         self._fd = None
         self._close_mutex = threading.Lock()
 
-        super(USBTMC, self).__init__(devnode)
+        super().__init__(devnode)
 
         try:
             self._fd = os.open(self._devnode, os.O_RDWR)
@@ -108,7 +108,7 @@ class USBTMC(_Transport):
 
         # Make sure the device is a USBTMC device by invoking a USBTMC-specific IOCTL and checking
         # that it is supported.
-        super(USBTMC, self).ioctl(self._fd, _USBTMC_IOCTL_CLEAR)
+        super().ioctl(self._fd, _USBTMC_IOCTL_CLEAR)
 
     def __del__(self):
         """The class destructor."""
@@ -122,7 +122,7 @@ class USBTMC(_Transport):
         except OSError as err:
             raise Error("error while writing to device '%s': %s" % (self._devnode, err))
 
-        super(USBTMC, self).write(data)
+        super().write(data)
 
     def read(self, size=4096):
         """Read an arbitrary amount of data directly from the device."""
@@ -132,7 +132,7 @@ class USBTMC(_Transport):
         except OSError as err:
             raise Error("error while reading from device '%s': %s" % (self._devnode, err))
 
-        super(USBTMC, self).read(size, data)
+        super().read(size, data)
 
         return data
 
