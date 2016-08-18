@@ -407,8 +407,13 @@ class YokoBase(object):
             raise Error("bad command \"%s\"" % cmd)
 
         # We allow 'arg' to be of different types and convert it into a string
-        if arg != None and not isinstance(arg, str):
-            arg = str(arg)
+        if arg != None:
+            if isinstance(arg, list):
+                for idx, item in enumerate(arg):
+                    if not isinstance(item, str):
+                        arg[idx] = str(item)
+            elif not isinstance(arg, str):
+                arg = str(arg)
 
         cmd_dict = self.commands[cmd]
 

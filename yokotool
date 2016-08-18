@@ -696,22 +696,6 @@ def set_command(meter):
     else:
         meter.command(cmd, args.value)
 
-def set_data_items(meter, items):
-    """
-    This is a helper function for 'read_command()' which parses the list of data items specified by
-    the user and configures the power meter correspondingly.
-    """
-
-    items = [s.strip() for s in items.split(",")]
-    if len(items) > meter.max_data_items:
-        log.error("too many data items to read, please, specify at most %s items",
-                  meter.max_data_items)
-        raise SystemExit(1)
-
-    meter.command("set-data-items-count", str(len(items)))
-    for number, item in enumerate(items, 1):
-        meter.command("set-data-item%d" % number, item)
-
 def interpret_read_argument(limit):
     """
     This is a helper function for 'read_command()' which interprets the second positional argument
@@ -751,7 +735,8 @@ def read_command(meter):
         log.info("%s", meter.get_argument_help("set-data-item1"))
         return
 
-    set_data_items(meter, args.value)
+    data_items = [data_item.strip() for data_item in args.value.split(",")]
+    meter.command("set-data-items", data_items)
     finish_with_integration = False
     read_count = read_time = None
 
