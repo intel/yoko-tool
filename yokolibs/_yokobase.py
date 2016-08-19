@@ -407,7 +407,7 @@ class YokoBase(object):
             raise Error("bad command \"%s\"" % cmd)
 
         # We allow 'arg' to be of different types and convert it into a string
-        if arg != None:
+        if arg is not None:
             if isinstance(arg, list):
                 for idx, item in enumerate(arg):
                     if not isinstance(item, str):

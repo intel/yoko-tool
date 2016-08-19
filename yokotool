@@ -740,7 +740,7 @@ def read_command(meter):
     finish_with_integration = False
     read_count = read_time = None
 
-    if args.limit != None:
+    if args.limit is not None:
         # 'read_count' can either be a number of samples to read or the time to continue reading
         read_time, read_count = interpret_read_argument(args.limit)
     else:
@@ -759,11 +759,11 @@ def read_command(meter):
                     log.info("Integration finished, exiting")
                     return
 
-            if read_time != None and time.time() - start_time > read_time:
+            if read_time is not None and time.time() - start_time > read_time:
                 log.info("%s second(s) read time is out, exiting", read_time)
                 return
 
-            if read_count != None and count >= read_count:
+            if read_count is not None and count >= read_count:
                 log.info("Read %d sample(s), exiting", read_count)
                 return
 
@@ -812,7 +812,7 @@ def integration_properties(meter):
     """This function reads or writes a value to the properties of 'integration' command."""
 
     # 'state' is a particular property which value can only be read and not written
-    if args.prop["name"] == "state" or args.value == None:
+    if args.prop["name"] == "state" or args.value is None:
         log.info("%s", meter.command(args.prop["get-cmd"]))
     else:
         args_list = meter.get_argument_help(args.prop["set-cmd"])
@@ -826,7 +826,7 @@ def integration_properties(meter):
 def smoothing_command(meter):
     """This function implements the 'smoothing' command."""
 
-    if args.value == None:
+    if args.value is None:
         log.info(meter.command(args.subcmd["get-cmd"]))
     else:
         args_list = meter.get_argument_help(args.subcmd["set-cmd"])
@@ -976,7 +976,7 @@ def merge_args():
         return
 
     for name in dict(args.config):
-        if hasattr(args, name) and getattr(args, name) == None:
+        if hasattr(args, name) and getattr(args, name) is None:
             setattr(args, name, args.config[name])
 
 def main():
