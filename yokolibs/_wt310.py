@@ -32,7 +32,7 @@ _ELEMENTS_COUNT = 1
 # The possible values for various power meter commands, referred to as 'assortments' in this code.
 #
 
-_ELECTRICAL_QUANTITIES = (
+_DATA_ITEMS = (
     ('V', 'voltage'),
     ('I', 'current'),
     ('P', 'active power'),
@@ -61,10 +61,9 @@ _ELECTRICAL_QUANTITIES = (
     ('Irange', 'current range'),
 )
 
-# Column[0]: human name of electrical quantity (as most commonly used in physics literature,
-#            documentation, etc)
-# Column[1]: WT310 protocol's name of electrical quantity
-_HUMAN_TO_PROTOCOL_ELEC_QTY = (
+# Column[0]: data item's human name (as most commonly used in physics literature and documentation)
+# Column[1]: WT310 protocol's name of the data item
+_HUMAN_TO_PROTOCOL_DATA_ITEM = (
     ('V', 'U'),
     ('Fv', 'Fu'),
     ('Vppeak', 'Uppeak'),
@@ -128,12 +127,12 @@ def _first_data_element_tweak(value):
 
 def _to_human_notation_tweak(value):
     """
-    A tweak which converts the human notation of electrical quantities to the WT310 protocol
-    notation. Right now, the only difference between both notations is that the protocol uses 'U' to
-    denote the voltage whereas the human notation is 'V'.
+    A tweak which converts the human notation of data items to the WT310 protocol notation.
+    Right now, the only difference between both notations is that the protocol uses 'U' to denote
+    the voltage whereas the human notation is 'V'.
     """
 
-    for data in _HUMAN_TO_PROTOCOL_ELEC_QTY:
+    for data in _HUMAN_TO_PROTOCOL_DATA_ITEM:
         if value == data[1]:
             value = data[0]
             break
@@ -142,7 +141,7 @@ def _to_human_notation_tweak(value):
 def _to_protocol_notation_tweak(value):
     """A tweak which does the opposite of '_to_human_notation_tweak()' function."""
 
-    for data in _HUMAN_TO_PROTOCOL_ELEC_QTY:
+    for data in _HUMAN_TO_PROTOCOL_DATA_ITEM:
         if value == data[0]:
             value = data[1]
             break
@@ -221,7 +220,7 @@ def _verify_data_items_count(item):
 
 def _verify_data_item_name(item):
     """
-    Verify whether of not 'item' argument is a valid electrical quantity. Please, see the
+    Verify whether of not 'item' argument is a valid data item. Please, see the
     'WT310/WT310HC/WT330 Digital Power Meter Communication Interface User's Manual', page 6-23
     'Numeric data functions' table.
     """
@@ -233,8 +232,8 @@ def _verify_data_item_name(item):
     if len(split) > 1 and not _is_in_range(split[1], 1, _ELEMENTS_COUNT):
         return False
 
-    # Make sure the element is a valid electrical quantity
-    if split[0] not in [element[0] for element in _ELECTRICAL_QUANTITIES]:
+    # Make sure the element is a valid data item
+    if split[0] not in [element[0] for element in _DATA_ITEMS]:
         return False
 
     return True
@@ -588,8 +587,8 @@ class WT310(_yokobase.YokoBase):
             # 'text_descr' depicts the list of data items that users can read. The initial new line
             # character improves formatting and readability.
             text_descr = "\n"
-            for elec_qty, descr in _ELECTRICAL_QUANTITIES:
-                text_descr += "%s - %s\n" % (elec_qty, descr)
+            for data_item, descr in _DATA_ITEMS:
+                text_descr += "%s - %s\n" % (data_item, descr)
             self._assortments[cmd] = {
                 "verify-func" : _verify_data_item_name,
                 "text-descr"  : text_descr,
