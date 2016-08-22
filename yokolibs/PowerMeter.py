@@ -52,7 +52,7 @@ class PowerMeter(object):
         """
         return getattr(self._meter, name)
 
-    def _set_data_items(self, dummy_cmd, data_items):
+    def _set_data_items(self, _cmd, data_items):
         """Configure the power meter before reading data."""
 
         if len(data_items) > self._meter.max_data_items:

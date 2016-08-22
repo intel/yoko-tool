@@ -380,7 +380,7 @@ class WT310(_yokobase.YokoBase):
         # strings instead of cut ones.
         self._command("set-verbose-mode", "on")
 
-    def _wait_for_data_update(self, dummy_cmd, dummy_arg):
+    def _wait_for_data_update(self, _cmd, _arg):
         """Wait until WT310 updates the data."""
 
         # Clear all the EESR trigger conditions
