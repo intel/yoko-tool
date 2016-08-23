@@ -40,7 +40,7 @@ class PowerMeter(object):
         transport_obj = _transport.USBTMC(devnode)
         self._meter = _wt310.WT310(transport_obj)
 
-        self.commands.update(_META_COMMANDS)
+        self._meter.commands.update(_META_COMMANDS)
         self._meter._command_map.update({
             "set-data-items"   : self._set_data_items,
         })
