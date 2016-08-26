@@ -41,9 +41,7 @@ class PowerMeter(object):
         self._meter = _wt310.WT310(transport_obj)
 
         self._meter.commands.update(_META_COMMANDS)
-        self._meter._command_map.update({
-            "set-data-items"   : self._set_data_items,
-        })
+        self._meter._command_map.update({"set-data-items": self._set_data_items,})
 
     def __getattr__(self, name):
         """
