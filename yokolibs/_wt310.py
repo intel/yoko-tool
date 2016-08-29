@@ -244,6 +244,9 @@ def _verify_math_name(name):
     'WT310/WT310HC/WT330 Digital Power Meter Communication Interface User's Manual', page 6-16.
     """
 
+    if name is None:
+        return False
+
     match = re.search(r"([^\d]*)(\d+)$", name)
     if match:
         if not _is_in_range(match.group(2), 1, _ELEMENTS_COUNT):
