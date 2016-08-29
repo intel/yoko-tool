@@ -24,6 +24,7 @@ Currently, only the USBTMC transport is supported.
 
 import os
 import logging
+import threading
 from fcntl import ioctl
 
 class Error(Exception):
@@ -98,6 +99,7 @@ class USBTMC(_Transport):
         """
 
         self._fd = None
+        self._close_mutex = threading.Lock()
 
         super(USBTMC, self).__init__(devnode)
 
@@ -112,10 +114,7 @@ class USBTMC(_Transport):
 
     def __del__(self):
         """The class destructor."""
-
-        if self._fd:
-            os.close(self._fd)
-            self._fd = None
+        self.close()
 
     def write(self, data):
         """Write command directly to the device."""
@@ -138,3 +137,12 @@ class USBTMC(_Transport):
         super(USBTMC, self).read(size, data)
 
         return data
+
+    def close(self):
+        """Close the power meter transport and free the resources."""
+
+        self._close_mutex.acquire()
+        if self._fd:
+            os.close(self._fd)
+            self._fd = None
+        self._close_mutex.release()
