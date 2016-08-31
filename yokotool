@@ -319,7 +319,7 @@ class MyArgsParser(argparse.ArgumentParser):
 
     def error(self, message):
         """Print the error message and exit."""
-        raise Error("%s, %s" % (message, "-h for help"))
+        raise Error("{}, {}".format(message, "-h for help"))
 
 def fetch_devnode():
     """
@@ -387,7 +387,7 @@ def get_subcmds_help(cmd):
             subcmds.append(item["name"])
     elif cmd in ("get", "set"):
         for item in PROPERTIES:
-            if "%s-cmd" % cmd in item:
+            if "{}-cmd".format(cmd) in item:
                 subcmds.append(item["name"])
     elif cmd == "smoothing":
         for item in SMOOTHING_PROPERTIES:
@@ -423,14 +423,14 @@ def parse_arguments():
     pars = MyArgsParser(description=text, prog='yokotool')
 
     # The '--version' option
-    pars.add_argument("--version", action="version", version="%(prog)s " + "%s" % VERSION)
+    pars.add_argument("--version", action="version", version="%(prog)s " + "{}".format(VERSION))
 
     # The '--debug' option
     text = "print debugging information"
     pars.add_argument("-d", "--debug", action="store_true", help=text)
 
     # The '--devmodel' option
-    text = "the power meter device model (e.g., %s)" % SUPPORTED_DEVMODELS[0]
+    text = "the power meter device model (e.g., {})".format(SUPPORTED_DEVMODELS[0])
     pars.add_argument("-m", "--devmodel", default="wt310", help=text)
 
     subpars = pars.add_subparsers(title="supported commands", metavar="")
@@ -486,7 +486,7 @@ def parse_arguments():
         pars2 = subpars1.add_parser(prop["name"], help=prop["help"], description=descr)
         pars2.set_defaults(prop=prop)
         pars2.set_defaults(func=set_command)
-        text = "the value to assign to \"%s\"" % prop["name"]
+        text = "the value to assign to {}".format(prop["name"])
         pars2.add_argument("value", nargs="?", default=None, help=text)
 
     #
@@ -512,7 +512,7 @@ def parse_arguments():
         pars2 = subpars1.add_parser(prop["name"], help=prop["help"],
                                     description=prop["descr"])
         if prop["name"] in ("mode", "timer"):
-            text = "the value to assign to \"integration %s\"" % prop["name"]
+            text = "the value to assign to integration {}".format(prop["name"])
             pars2.add_argument("value", nargs="?", default=None, help=text)
         pars2.set_defaults(prop=prop)
         pars2.set_defaults(func=integration_properties)
@@ -527,11 +527,11 @@ def parse_arguments():
 
     # Add 'smoothing' properties
     for subcmd in SMOOTHING_PROPERTIES:
-        descr = "Get or set the smoothing %s." % subcmd["name"]
+        descr = "Get or set the smoothing {}.".format(subcmd["name"])
         pars2 = subpars1.add_parser(subcmd["name"], help=subcmd["help"], description=descr)
         pars2.set_defaults(subcmd=subcmd)
         pars2.set_defaults(func=smoothing_command)
-        text = "the value to assign to \"smoothing %s\"" % subcmd["name"]
+        text = "the value to assign to smoothing {}".format(subcmd["name"])
         pars2.add_argument("value", nargs="?", default=None, help=text)
 
     #
@@ -562,7 +562,7 @@ def parse_arguments():
     if sys.argv[-1] == "?":
         cmd = sys.argv[-2]
         if cmd in ("get", "set", "integration", "smoothing"):
-            log.info("%s", get_subcmds_help(cmd))
+            log.info("{}".format(get_subcmds_help(cmd)))
             raise SystemExit(0)
 
     try:
@@ -678,8 +678,8 @@ def info_command(meter):
     for prop in PROPERTIES:
         value = meter.command(prop["get-cmd"])
         if log.info_stream.isatty():
-            value = ESC_WHITE_BRIGHT + "%s" % value + ESC_END
-        log.info("%s: %s", prop["help"].capitalize(), value)
+            value = ESC_WHITE_BRIGHT + "{}".format(value) + ESC_END
+        log.info("{}: {}".format(prop["help"].capitalize(), value))
 
 def get_command(meter):
     """This function implements the 'get' command."""
@@ -692,7 +692,7 @@ def set_command(meter):
 
     cmd = args.prop["set-cmd"]
     if args.value == "?":
-        log.info("%s", meter.get_argument_help(cmd))
+        log.info("{}".format(meter.get_argument_help(cmd)))
     else:
         meter.command(cmd, args.value)
 
@@ -732,7 +732,7 @@ def read_command(meter):
     """This function implements the 'read' command."""
 
     if args.value == "?":
-        log.info("%s", meter.get_argument_help("set-data-item1"))
+        log.info("{}".format(meter.get_argument_help("set-data-item1")))
         return
 
     data_items = [data_item.strip() for data_item in args.value.split(",")]
@@ -760,11 +760,11 @@ def read_command(meter):
                     return
 
             if read_time is not None and time.time() - start_time > read_time:
-                log.info("%s second(s) read time is out, exiting", read_time)
+                log.info("{} second(s) read time is out, exiting".format(read_time))
                 return
 
             if read_count is not None and count >= read_count:
-                log.info("Read %d sample(s), exiting", read_count)
+                log.info("Read {} sample(s), exiting".format(read_count))
                 return
 
             meter.command("wait-for-data-update")
@@ -802,8 +802,8 @@ def integration_subcommands(meter):
     integ_timer = meter.command("get-integration-timer")
     integ_mode = meter.command("get-integration-mode")
     if args.subcmd["name"] == "start" and integ_timer == "0" and integ_mode == "continuous":
-        log.error("Please, set a timer value higher than \"%s\" to start integration in "
-                  "\"%s\" mode.", integ_timer, integ_mode)
+        log.error("Please, set a timer value higher than \"{}\" to start integration in "
+                 "\"{}\" mode.".format(integ_timer, integ_mode))
         return
 
     meter.command(args.subcmd["command"])
@@ -813,15 +813,15 @@ def integration_properties(meter):
 
     # 'state' is a particular property which value can only be read and not written
     if args.prop["name"] == "state" or args.value is None:
-        log.info("%s", meter.command(args.prop["get-cmd"]))
+        log.info("{}".format(meter.command(args.prop["get-cmd"])))
     else:
         args_list = meter.get_argument_help(args.prop["set-cmd"])
         if args.value == "?":
-            log.info("%s", args_list)
+            log.info("{}".format(args_list))
         elif str(args.value) in args_list or is_int(args.value) and 0 <= int(args.value) <= 36000000:
             meter.command(args.prop["set-cmd"], args.value)
         else:
-            raise Error("unacceptable argument \"%s\", use: %s" % (args.value, args_list))
+            raise Error("unacceptable argument \"{}\", use: {}".format(args.value, args_list))
 
 def smoothing_command(meter):
     """This function implements the 'smoothing' command."""
@@ -831,11 +831,11 @@ def smoothing_command(meter):
     else:
         args_list = meter.get_argument_help(args.subcmd["set-cmd"])
         if args.value == "?":
-            log.info("%s", args_list)
+            log.info("{}".format(args_list))
         elif args.value in args_list:
             meter.command(args.subcmd["set-cmd"], args.value)
         else:
-            raise Error("unacceptable argument \"%s\", use: %s" % (args.value, args_list))
+            raise Error("unacceptable argument \"{}\", use: {}".format(args.value, args_list))
 
 def calibrate_command(meter):
     """This function implements the 'calibrate' command."""
@@ -857,13 +857,13 @@ def configure_sock(port):
     """
 
     if not is_int(port):
-        log.error("wrong TCP port %s, please, provide an integer value", port)
+        log.error("wrong TCP port \"{}\", please, provide an integer value".format(port))
         raise SystemExit(1)
     else:
         port = int(port)
 
     if (port < 1) | (port > 65535):
-        log.error("wrong TCP port %s, please, provide a value ranging from 1 through 65535", port)
+        log.error("wrong TCP port \"{}\", please, provide a value ranging from 1 through 65535".format(port))
         raise SystemExit(1)
 
     spec = namedtuple('sock_spec', ['host', 'port', 'connections', 'bufsize'])
@@ -877,7 +877,7 @@ def start_sock_connection(sock_spec):
         sock.bind((sock_spec.host, sock_spec.port))
         sock.listen(sock_spec.connections)
     except IOError as err:
-        log.error("failed to start TCP listener on port %d: %s", sock_spec.port, err)
+        log.error("failed to start TCP listener on port \"{}\": {}".format(sock_spec.port, err))
         raise SystemExit(1)
 
     return sock
@@ -954,12 +954,12 @@ def load_config():
                 config["devmodel"] = cfgfile.get("Connection", "device_model")
                 config["devnode"] = cfgfile.get("Connection", "device_node")
             except configparser.Error as error:
-                log.error("could not get data from %s file: %s", cfgpath, error)
+                log.error("could not get data from \"{}\" file: {}".format(cfgpath, error))
                 raise SystemExit(1)
             finally:
                 f.close()
     except IOError as error:
-        log.error("could not open %s file: %s", cfgpath, error)
+        log.error("could not open \"{}\" file: {}".format(cfgpath, error))
         raise SystemExit(1)
 
     return config
@@ -994,9 +994,9 @@ def main():
     merge_args()
 
     if args.devmodel.lower() not in SUPPORTED_DEVMODELS:
-        log.error("\"%s\" power meter device model is not supported, please, use -m to specify the "
-                  "model (e.g., %s) or save it to \"/home/$USER/.yokotool.conf\" file, "
-                  "use -h for help", args.devmodel, SUPPORTED_DEVMODELS[0])
+        log.error("\"{}\" power meter device model is not supported, please, use -m to specify the "
+                  "model (e.g., {}) or save it to \"/home/$USER/.yokotool.conf\" file, "
+                  "use -h for help".format(args.devmodel, SUPPORTED_DEVMODELS[0]))
         raise SystemExit(1)
 
     if args.devnode:
