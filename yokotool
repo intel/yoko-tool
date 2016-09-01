@@ -772,7 +772,7 @@ def read_command(meter):
                 return
 
             meter.command("wait-for-data-update")
-            log.info(meter.command("get-data"))
+            log.info(", ".join(meter.command("get-data")))
 
             count += 1
     except KeyboardInterrupt:

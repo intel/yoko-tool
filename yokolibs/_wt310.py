@@ -149,7 +149,7 @@ def _to_protocol_notation_tweak(value):
 
 def _wt310_measurement_data_tweak(data):
     """A tweak which converts the measurement data read from WT310 to a human-friendly format."""
-    return ", ".join([str(float(v)) for v in data.split(",")])
+    return [str(float(v)) for v in data.split(",")]
 
 def _csv_to_seconds_tweak(value):
     """A tweak which converts time from 'h,m,s' CSV format to seconds."""
