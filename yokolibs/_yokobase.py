@@ -280,13 +280,13 @@ class YokoBase(object):
 
         # Add commands for getting and setting data items
         for item in range(1, self.max_data_items + 1):
-            cmd = "get-data-item%d" % item
+            cmd = "get-data-item{}".format(item)
             self.commands[cmd] = {
                 "has-response" : True,
                 "has-argument" : False,
             }
 
-            cmd = "set-data-item%d" % item
+            cmd = "set-data-item{}".format(item)
             self.commands[cmd] = {
                 "has-response" : False,
                 "has-argument" : True,
@@ -353,23 +353,23 @@ class YokoBase(object):
             try:
                 response = self._query(sent_cmd)
             except _transport.Error as err:
-                raise Error("sent command \"%s\" but failed to read the power meter's response:\n%s"
-                            % (sent_cmd.lstrip(), err))
+                raise Error("sent command \"{}\" but failed to read "
+                            "the power meter's response:\n{}".format(sent_cmd.lstrip(), err))
 
             response = self._apply_response_tweaks(cmd, response)
         else:
             try:
                 self._transport.write(sent_cmd + "\n")
             except _transport.Error as err:
-                raise Error("failed to write command \"%s\" to the power meter:\n%s"
-                            % (sent_cmd.lstrip(), err))
+                raise Error("failed to write command \"{}\" "
+                            "to the power meter:\n{}".format(sent_cmd.lstrip(), err))
             response = None
 
         # Read and check the status
         raw_cmd = self._command_map["get-error-status"]
         status = self._query(raw_cmd)
         if status.split(',')[0] != '0':
-            raise Error("command \"%s\" failed:\n%s" % (sent_cmd.lstrip(), status))
+            raise Error("command \"{}\" failed:\n{}".format(sent_cmd.lstrip(), status))
 
         return response
 
@@ -382,13 +382,14 @@ class YokoBase(object):
         if "assortment" in self._assortments[cmd]:
             assortment = self._assortments[cmd]["assortment"]
             if arg not in assortment:
-                raise Error("unacceptable argument \"%s\", use: %s" % (arg, ", ".join(assortment)))
+                raise Error("unacceptable argument \"{}\", "
+                            "use: {}".format(arg, ", ".join(assortment)))
 
         if "verify-func" in self._assortments[cmd]:
             func = self._assortments[cmd]["verify-func"]
             if not func(arg):
-                raise Error("unacceptable argument \"%s\", use: %s"
-                            % (arg, self._assortments[cmd]["text-descr"]))
+                raise Error("unacceptable argument \"{}\", "
+                            "use: {}".format(arg, self._assortments[cmd]["text-descr"]))
 
         return True
 
@@ -404,7 +405,7 @@ class YokoBase(object):
         """
 
         if not isinstance(cmd, str) or cmd not in self.commands:
-            raise Error("bad command \"%s\"" % cmd)
+            raise Error("bad command \"{}\"".format(cmd))
 
         # We allow 'arg' to be of different types and convert it into a string
         if arg is not None:
@@ -421,7 +422,7 @@ class YokoBase(object):
         if cmd_dict["has-argument"]:
             self._verify_argument(cmd, arg)
         elif arg is not None:
-            raise Error("command \"%s\" does not need argument \"%s\"" % (cmd, arg))
+            raise Error("command \"{}\" does not need argument \"{}\"".format(cmd, arg))
 
         return self._command(cmd, arg, cmd_dict["has-response"])
 
@@ -429,14 +430,14 @@ class YokoBase(object):
         """Return a user-friendly help message for the power meter command 'cmd'."""
 
         if cmd not in self._assortments:
-            raise Error("command \"%s\" does not support arguments" % cmd)
+            raise Error("command \"{}\" does not support arguments".format(cmd))
 
         if "text-descr" in self._assortments[cmd]:
             return self._assortments[cmd]["text-descr"]
         elif "assortment" in self._assortments[cmd]:
             return ", ".join(self._assortments[cmd]["assortment"])
         else:
-            return "no help text for \"%s\", please report a bug" % cmd
+            return "no help text for \"{}\", please report a bug".format(cmd)
 
 #
 # Constants used by children of the 'YokoBase' class
