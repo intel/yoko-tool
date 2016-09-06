@@ -45,6 +45,13 @@ class PowerMeter(object):
         self._meter.commands.update(_META_COMMANDS)
         self._meter._command_map.update({"set-data-items": self._set_data_items,})
 
+    def close(self):
+        """Close the communication interface with the power meter."""
+
+        if self._meter:
+            self._meter.close()
+            self._meter = None
+
     def __getattr__(self, name):
         """
         If an attribute is not found in PowerMeter, then it is searched for in 'self._meter', the

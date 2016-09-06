@@ -300,6 +300,13 @@ class YokoBase(object):
         self._tweaks = {}
         self._state_checks = {}
 
+    def close(self):
+        """Close the communication interface with the power meter."""
+
+        if self._transport:
+            self._transport.close()
+            self._transport = None
+
     def _apply_response_tweaks(self, cmd, response):
         """
         Tweak 'response' as defined within a specific type of power meter, then return the
