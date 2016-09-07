@@ -29,6 +29,7 @@ The Ethernet, RS-232 and GP-IB interfaces are not supported either.
 # pylint: disable=too-few-public-methods
 # pylint: disable=invalid-name
 # pylint: disable=global-statement
+# pylint: disable=redefined-variable-type
 
 from __future__ import print_function
 import os
@@ -37,9 +38,10 @@ import time
 import socket
 import logging
 import argparse
-import colorama
 import configparser
 from collections import namedtuple
+
+import colorama
 
 from yokolibs import PowerMeter
 
@@ -803,7 +805,7 @@ def integration_subcommands(meter):
     integ_mode = meter.command("get-integration-mode")
     if args.subcmd["name"] == "start" and integ_timer == "0" and integ_mode == "continuous":
         log.error("Please, set a timer value higher than \"%s\" to start integration in "
-                 "\"%s\" mode.", integ_timer, integ_mode)
+                  "\"%s\" mode.", integ_timer, integ_mode)
         return
 
     meter.command(args.subcmd["command"])
@@ -818,7 +820,8 @@ def integration_properties(meter):
         args_list = meter.get_argument_help(args.prop["set-cmd"])
         if args.value == "?":
             log.info("%s", args_list)
-        elif str(args.value) in args_list or is_int(args.value) and 0 <= int(args.value) <= 36000000:
+        elif str(args.value) in args_list or \
+             is_int(args.value) and 0 <= int(args.value) <= 36000000:
             meter.command(args.prop["set-cmd"], args.value)
         else:
             raise Error("unacceptable argument \"{}\", use: {}".format(args.value, args_list))
@@ -863,7 +866,7 @@ def configure_sock(port):
         port = int(port)
 
     if (port < 1) | (port > 65535):
-        log.error("wrong TCP port \"%s\", please, provide a value ranging from 1 through 65535", port)
+        log.error("wrong TCP port \"%s\", please, provide a value ranging from 1 to 65535", port)
         raise SystemExit(1)
 
     spec = namedtuple('sock_spec', ['host', 'port', 'connections', 'bufsize'])
