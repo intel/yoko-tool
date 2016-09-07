@@ -702,8 +702,8 @@ class WT310(_yokobase.YokoBase):
         integ_state = self.command("get-integration-state")
         if integ_state not in allowed_states:
             raise _yokobase.Error("current integration state is \"{}\", but \"{}\" can only be "
-                                  "executed in the following state(s): {}".format(integ_state,
-                                  cmd, ", ".join(allowed_states)))
+                                  "executed in the following state(s): {}".format(integ_state, cmd,
+                                  ", ".join(allowed_states))) # pylint: disable=bad-continuation
 
     def _ongoing_integration_check(self, cmd):
         """
