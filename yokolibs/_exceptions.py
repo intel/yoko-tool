@@ -25,7 +25,7 @@ class Error(Exception):
 
         super().__init__(msg)
 
-        assert(isinstance(msg, str))
+        assert isinstance(msg, str)
         self.msg = msg
 
     def __str__(self):
