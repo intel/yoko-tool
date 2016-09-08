@@ -20,6 +20,8 @@ This module implements some high-level logic that complements the functionalitie
 power meters.
 """
 
+# pylint: disable=protected-access
+
 from yokolibs import _transport, _wt310
 from yokolibs._exceptions import Error
 
