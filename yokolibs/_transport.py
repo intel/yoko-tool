@@ -41,15 +41,15 @@ class _Transport(object):
 
     def _dbg(self, message): # pylint: disable=no-self-use
         """Print a debug message."""
-        self._log.debug("{}: {}".format(self._devnode, message.rstrip()))
+        self._log.debug("%s: %s", self._devnode, message.rstrip())
 
-    def read(self, size, data):
-        """Print a debug message for the 'data' read from the transport interface."""
-        self._dbg("received: {}".format(data))
+    def read(self, size):
+        """Abstract method to be implemented in child classes."""
+        pass
 
     def write(self, data):
-        """Print a debug message for the arbitrary 'data' written to the transport interface."""
-        self._dbg("sent: {}".format(data))
+        """Abstract method to be implemented in child classes."""
+        pass
 
     def query(self, command, size=4096):
         """Write 'command' and return the read response."""
@@ -67,18 +67,19 @@ class _Transport(object):
             return result.splitlines()[0]
         return ''
 
-    def ioctl(self, fd, operation):
+    def ioctl(self, fobj, operation):
         """
         Execute specific IOCTL to ensure that we are dealing with the expected type of character
         device.
         """
 
         try:
-            ioctl(fd, operation)
+            ioctl(fobj, operation)
         except IOError as err:
             if err.errno == os.errno.ENOTTY:
                 raise Error("\"{}\" is not a {} device".format(self._devnode, self._name))
-            raise Error("ioctl \"{}\" for device \"{}\" failed: {}".format(operation, self._devnode, err))
+            raise Error("ioctl \"{}\" for device \"{}\" failed: {}".format(operation, self._devnode,
+                                                                           err))
 
 
 # Clear the device's input and output buffers
@@ -122,7 +123,7 @@ class USBTMC(_Transport):
         except OSError as err:
             raise Error("error while writing to device \"{}\": {}".format(self._devnode, err))
 
-        super().write(data)
+        self._dbg("sent: {}".format(data))
 
     def read(self, size=4096):
         """Read an arbitrary amount of data directly from the device."""
@@ -132,7 +133,7 @@ class USBTMC(_Transport):
         except OSError as err:
             raise Error("error while reading from device \"{}\": \"{}\"".format(self._devnode, err))
 
-        super().read(size, data)
+        self._dbg("received: {}".format(data))
 
         return data
 
