@@ -30,6 +30,7 @@ The Ethernet, RS-232 and GP-IB interfaces are not supported either.
 # pylint: disable=invalid-name
 # pylint: disable=global-statement
 # pylint: disable=redefined-variable-type
+# pylint: disable=protected-access
 
 from __future__ import print_function
 import os
@@ -54,6 +55,7 @@ class Error(PowerMeter.Error):
     pass
 
 log = logging.getLogger()
+
 args = None
 
 # Esc-sequences for colored output
@@ -679,7 +681,7 @@ def info_command(meter):
 
     for prop in PROPERTIES:
         value = meter.command(prop["get-cmd"])
-        if log.info_stream.isatty():
+        if log.info_stream.isatty(): # pylint: disable=no-member
             value = ESC_WHITE_BRIGHT + "{}".format(value) + ESC_END
         log.info("%s: %s", prop["help"].capitalize(), value)
 
@@ -952,7 +954,7 @@ def load_config():
     try:
         with open(cfgpath, "r") as f:
             cfgfile = configparser.ConfigParser()
-            cfgfile.readfp(f)
+            cfgfile.read_file(f)
             try:
                 config["devmodel"] = cfgfile.get("Connection", "device_model")
                 config["devnode"] = cfgfile.get("Connection", "device_node")
