@@ -25,14 +25,6 @@ power meters.
 from yokolibs import _transport, _wt310
 from yokolibs._exceptions import Error
 
-# Meta-commands do not map to a power meter command but implement a higher-level logic
-_META_COMMANDS = {
-    "set-data-items" : {
-        "has-response" : False,
-        "has-argument" : True,
-    },
-}
-
 class PowerMeter(object):
     """This class extends the capabilities of 'WT310' class."""
 
@@ -41,9 +33,6 @@ class PowerMeter(object):
 
         transport_obj = _transport.USBTMC(devnode)
         self._meter = _wt310.WT310(transport_obj)
-
-        self._meter.commands.update(_META_COMMANDS)
-        self._meter._command_map.update({"set-data-items": self._set_data_items,})
 
     def close(self):
         """Close the communication interface with the power meter."""
@@ -59,7 +48,7 @@ class PowerMeter(object):
         """
         return getattr(self._meter, name)
 
-    def _set_data_items(self, _, data_items):
+    def _set_data_items(self, data_items):
         """Configure the power meter before reading data."""
 
         if len(data_items) > self._meter.max_data_items:
@@ -72,3 +61,17 @@ class PowerMeter(object):
         self._meter.command("set-data-items-count", len(data_items))
         for idx, data_item in enumerate(data_items, 1):
             self._meter.command("set-data-item{}".format(idx), data_item)
+
+    def command(self, cmd, arg=None):
+        """
+        Override the 'command()' method of the power meter to intercept the meta-commands like
+        'set-data-items'. Meta-commands do not map to power meter commands. Instead, they implement
+        a higher-level logic.
+        """
+
+        if cmd == "set-data-items":
+            self._set_data_items(arg)
+            response = None
+        else:
+            response = self._meter.command(cmd, arg)
+        return response
