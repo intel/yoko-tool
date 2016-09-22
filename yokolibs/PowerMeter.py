@@ -23,6 +23,7 @@ power meters.
 # pylint: disable=protected-access
 
 import re
+import time
 
 from yokolibs import _transport, _wt310
 from yokolibs._exceptions import Error
@@ -47,6 +48,10 @@ class PowerMeter(object):
         self._argcopy = None
         # The data items to be read from the power meter
         self._data_items = None
+        # The interval is needed to compute the Joules virtual data item
+        self._interval = self._meter.command("get-interval")
+        # The time stamp virtual data item
+        self._timestamp = None
 
         self._extend_assortments()
 
@@ -124,5 +129,8 @@ class PowerMeter(object):
             self._set_data_items(arg)
             response = None
         else:
+            self._timestamp = str(time.time())
             response = self._meter.command(cmd, arg)
+            if cmd == "set-interval":
+                self._interval = arg
         return response
