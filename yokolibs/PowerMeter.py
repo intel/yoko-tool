@@ -22,8 +22,17 @@ power meters.
 
 # pylint: disable=protected-access
 
+import re
+
 from yokolibs import _transport, _wt310
 from yokolibs._exceptions import Error
+
+# Some data items come from the power meter (e.g., power, current, voltage, etc), others are
+# generated on-the-fly by this library and we refer to them as 'virtual data items'.
+_VDATA_ITEMS = (
+    ("T", "time stamp"),
+    ("J", "Joules"),
+)
 
 class PowerMeter(object):
     """This class extends the capabilities of 'WT310' class."""
@@ -33,6 +42,8 @@ class PowerMeter(object):
 
         transport_obj = _transport.USBTMC(devnode)
         self._meter = _wt310.WT310(transport_obj)
+
+        self._extend_assortments()
 
     def close(self):
         """Close the communication interface with the power meter."""
@@ -47,6 +58,20 @@ class PowerMeter(object):
         object representing a specific power meter model (eg., WT310).
         """
         return getattr(self._meter, name)
+
+    def _extend_assortments(self):
+        """
+        Extend the 'assortments' of the power meter: the description of commands like
+        'set-data-item%d' should include the virtual data items.
+        """
+
+        vdata_items_descr = ""
+        for vdata_item, descr in _VDATA_ITEMS:
+            vdata_items_descr += "{} - {}\n".format(vdata_item, descr)
+
+        for cmd in self._meter._assortments:
+            if re.match(r"(set-data-item[0-9]+)", cmd):
+                self._meter._assortments[cmd]["text-descr"] += vdata_items_descr
 
     def _set_data_items(self, data_items):
         """Configure the power meter before reading data."""
