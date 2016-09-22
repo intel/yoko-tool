@@ -43,6 +43,11 @@ class PowerMeter(object):
         transport_obj = _transport.USBTMC(devnode)
         self._meter = _wt310.WT310(transport_obj)
 
+        # The original list of arguments users requested to read
+        self._argcopy = None
+        # The data items to be read from the power meter
+        self._data_items = None
+
         self._extend_assortments()
 
     def close(self):
@@ -73,6 +78,22 @@ class PowerMeter(object):
             if re.match(r"(set-data-item[0-9]+)", cmd):
                 self._meter._assortments[cmd]["text-descr"] += vdata_items_descr
 
+    def _get_data_items_to_read(self, data_items):
+        """
+        Get the list of data items to be read from the power meter. If users request to read
+        the 'Joules' virtual data item, we read 'Power' and will use this value to later compute
+        the Joules.
+        """
+
+        self._data_items = []
+        vdata_items = [vitem[0] for vitem in _VDATA_ITEMS]
+
+        for data_item in data_items:
+            if data_item not in vdata_items:
+                self._data_items.append(data_item)
+            elif data_item == "J":
+                self._data_items.append("P")
+
     def _set_data_items(self, data_items):
         """Configure the power meter before reading data."""
 
@@ -80,12 +101,17 @@ class PowerMeter(object):
             raise Error("too many data items to read, "
                         "please, specify at most {} items".format(self._meter.max_data_items))
 
-        for idx, data_item in enumerate(data_items, 1):
-            self._meter._verify_argument("set-data-item{}".format(idx), data_item)
+        self._get_data_items_to_read(data_items)
 
-        self._meter.command("set-data-items-count", len(data_items))
-        for idx, data_item in enumerate(data_items, 1):
-            self._meter.command("set-data-item{}".format(idx), data_item)
+        if self._data_items:
+            for idx, data_item in enumerate(self._data_items, 1):
+                self._meter._verify_argument("set-data-item{}".format(idx), data_item)
+
+            self._meter.command("set-data-items-count", len(self._data_items))
+            for idx, data_item in enumerate(self._data_items, 1):
+                self._meter.command("set-data-item{}".format(idx), data_item)
+
+        self._argcopy = data_items
 
     def command(self, cmd, arg=None):
         """
