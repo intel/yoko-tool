@@ -118,6 +118,24 @@ class PowerMeter(object):
 
         self._argcopy = data_items
 
+    def _inject_vdata_items(self, response):
+        """Inject the virtual data items into the read response."""
+
+        updated_response = []
+        vdata_items = [vitem[0] for vitem in _VDATA_ITEMS]
+
+        for arg in self._argcopy:
+            if arg not in vdata_items:
+                updated_response.append(response[0])
+                del response[0]
+            elif arg == "T":
+                updated_response.append(self._timestamp)
+            elif arg == "J":
+                updated_response.append(str(float(response[0]) * self._interval))
+                del response[0]
+
+        return updated_response
+
     def command(self, cmd, arg=None):
         """
         Override the 'command()' method of the power meter to intercept the meta-commands like
@@ -133,4 +151,6 @@ class PowerMeter(object):
             response = self._meter.command(cmd, arg)
             if cmd == "set-interval":
                 self._interval = arg
+            elif cmd == "get-data":
+                response = self._inject_vdata_items(response)
         return response
