@@ -37,9 +37,8 @@ setup(
     scripts=['yokotool'],
     packages=find_packages(exclude=["test*"]),
     license='GPLv2',
-    long_description="This package provides yokotool - a Linux command-line tool for controlling " \
-                     "the Yokogawa WT310 power meter. Namely, it allows for configuring the " \
-                     "power meter and reading the measurements data. There are also python " \
-                     "modules which provide the power meter control APIs for external python " \
-                     "programs."
+    long_description="""This package provides yokotool - a Linux command-line tool for controlling
+                        the Yokogawa WT310 power meter. Namely, it allows for configuring the power
+                        meter and reading the measurements data. There are also python modules which
+                        provide the power meter control APIs for external python programs."""
 )
