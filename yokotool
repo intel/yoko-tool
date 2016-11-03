@@ -46,7 +46,7 @@ import colorama
 
 from yokolibs import PowerMeter
 
-VERSION = "1.3"
+VERSION = "1.4"
 
 SUPPORTED_DEVMODELS = ("wt310",)
 

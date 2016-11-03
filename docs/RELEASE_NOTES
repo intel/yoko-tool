@@ -1,3 +1,30 @@
+Release 1.4
+~~~~~~~~~~~
+
+1. Implemented the support of virtual data items like: along with the data we read from the power
+   meter (like power, current, voltage, etc), users can now also read “time stamp” and “Joules”.
+
+2. BUG FIX: catch empty parameters for "set-math"
+
+   The command requires an argument but we wouldn't catch the case where the argument was empty,
+   which triggered a TypeError exception.
+
+3. yokotool: BUG FIX: catch all relevant exceptions in "listen" mode
+
+   In "listen" mode, some error messages were not forwarded to the client but would display
+   on the server side.
+
+4. yokotool: BUG FIX: the "integration timer" values should be integers only
+
+5. yokotool: BUG FIX: use "error_stream" instead of "sys.stderr"
+
+   We want to color the error messages that we write to a terminal. And since we can define a custom
+   stream that is not interactive, we should also check the appropriate global variable to filter out
+   the non-interactive streams.
+
+6. Ported yoko-tool to Python3
+
+
 Release 1.3
 ~~~~~~~~~~~
 
