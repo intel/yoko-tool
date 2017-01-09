@@ -164,7 +164,7 @@ def _seconds_to_csv_tweak(value):
 
     minutes, seconds = divmod(int(value), 60)
     hours, minutes = divmod(minutes, 60)
-    return "{},{},{}".format(hours, minutes, seconds)
+    return "%d,%d,%d" % (hours, minutes, seconds)
 
 def _math_response_tweak(value):
     """
@@ -387,17 +387,17 @@ class WT310(_yokobase.YokoBase):
 
         # Clear all the EESR trigger conditions
         for bit in range(0, len(_EESR_BITS)):
-            self._command("set-eesr-trigger{}".format(bit), "never")
+            self._command("set-eesr-trigger%d" % bit, "never")
 
         # Clear EESR by reading it
         self._command("get-eesr", has_response=True)
 
         # Configure a trigger for the "UPD" bit changing from 1 to 0, which
         # happens when data update finishes.
-        self._command("set-eesr-trigger{}".format(_EESR_BITS.index('upd')), "fall")
+        self._command("set-eesr-trigger%d" % _EESR_BITS.index('upd'), "fall")
 
         # Wait for the event
-        self._command("eesr-wait{}".format(_EESR_BITS.index('upd')))
+        self._command("eesr-wait%d" % _EESR_BITS.index('upd'))
 
     def _define_command_map(self):
         """
@@ -412,19 +412,19 @@ class WT310(_yokobase.YokoBase):
 
         # Add mappings for data item commands
         for item in range(1, self.max_data_items + 1):
-            cmd = "get-data-item{}".format(item)
-            self._command_map[cmd] = ":NUM:NORM:ITEM{}?".format(item)
+            cmd = "get-data-item%d" % item
+            self._command_map[cmd] = ":NUM:NORM:ITEM%d?" % item
 
-            cmd = "set-data-item{}".format(item)
-            self._command_map[cmd] = ":NUM:NORM:ITEM{}".format(item)
+            cmd = "set-data-item%d" % item
+            self._command_map[cmd] = ":NUM:NORM:ITEM%d" % item
 
         # Add mappings for EESR-related commands (one command per a EESR bit)
         for bit in range(1, len(_EESR_BITS) + 1):
-            cmd = "set-eesr-trigger{}".format(bit - 1)
-            self._command_map[cmd] = ":STAT:FILT{}".format(bit)
+            cmd = "set-eesr-trigger%d" % (bit - 1)
+            self._command_map[cmd] = ":STAT:FILT%d" % bit
 
-            cmd = "eesr-wait{}".format(bit - 1)
-            self._command_map[cmd] = ":COMM:WAIT {}".format(bit)
+            cmd = "eesr-wait%d" % (bit - 1)
+            self._command_map[cmd] = ":COMM:WAIT %d" % bit
 
     def _define_assortments(self):
         """
@@ -573,7 +573,8 @@ class WT310(_yokobase.YokoBase):
             },
             "set-data-items-count" : {
                 "verify-func" : _verify_data_items_count,
-                "text-descr"  : "an integer from 1 to {}".format(self.max_data_items),
+                "text-descr"  : "an integer from 1 to %d" \
+                                % self.max_data_items,
             },
         }
 
@@ -585,12 +586,12 @@ class WT310(_yokobase.YokoBase):
 
         # Add verification functions for data item commands
         for item in range(1, self.max_data_items + 1):
-            cmd = "set-data-item{}".format(item)
+            cmd = "set-data-item%d" % item
             # 'text_descr' depicts the list of data items that users can read. The initial new line
             # character improves formatting and readability.
             text_descr = "\n"
             for data_item, descr in _DATA_ITEMS:
-                text_descr += "{} - {}\n".format(data_item, descr)
+                text_descr += "%s - %s\n" % (data_item, descr)
             self._assortments[cmd] = {
                 "verify-func" : _verify_data_item_name,
                 "text-descr"  : text_descr,
@@ -680,14 +681,14 @@ class WT310(_yokobase.YokoBase):
 
         # Add tweaks fo data item commands
         for item in range(1, self.max_data_items + 1):
-            cmd = "get-data-item{}".format(item)
+            cmd = "get-data-item%d" % item
             self._tweaks[cmd] = {
                 "response-tweaks" : (lambda x: x.lower().capitalize(),
                                      _first_data_element_tweak,
                                      _to_human_notation_tweak),
             }
 
-            cmd = "set-data-item{}".format(item)
+            cmd = "set-data-item%d" % item
             self._tweaks[cmd] = {
                 "input-tweaks" : (lambda x: x.lower().capitalize(),
                                   _to_protocol_notation_tweak)
@@ -701,9 +702,9 @@ class WT310(_yokobase.YokoBase):
 
         integ_state = self.command("get-integration-state")
         if integ_state not in allowed_states:
-            raise _yokobase.Error("current integration state is \"{}\", but \"{}\" can only be "
-                                  "executed in the following state(s): {}".format(integ_state, cmd,
-                                  ", ".join(allowed_states))) # pylint: disable=bad-continuation
+            raise _yokobase.Error("current integration state is \"%s\", but \"%s\" can only be "
+                                  "executed in the following state(s): %s"
+                                  % (integ_state, cmd, ", ".join(allowed_states)))
 
     def _ongoing_integration_check(self, cmd):
         """
