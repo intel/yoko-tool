@@ -77,7 +77,7 @@ class PowerMeter(object):
 
         vdata_items_descr = ""
         for vdata_item, descr in _VDATA_ITEMS:
-            vdata_items_descr += "{} - {}\n".format(vdata_item, descr)
+            vdata_items_descr += "%s - %s\n" % (vdata_item, descr)
 
         for cmd in self._meter._assortments:
             if re.match(r"(set-data-item[0-9]+)", cmd):
@@ -103,18 +103,18 @@ class PowerMeter(object):
         """Configure the power meter before reading data."""
 
         if len(data_items) > self._meter.max_data_items:
-            raise Error("too many data items to read, "
-                        "please, specify at most {} items".format(self._meter.max_data_items))
+            raise Error("too many data items to read, please, specify at most %s items"
+                        % self._meter.max_data_items)
 
         self._get_data_items_to_read(data_items)
 
         if self._data_items:
             for idx, data_item in enumerate(self._data_items, 1):
-                self._meter._verify_argument("set-data-item{}".format(idx), data_item)
+                self._meter._verify_argument("set-data-item%d" % idx, data_item)
 
             self._meter.command("set-data-items-count", len(self._data_items))
             for idx, data_item in enumerate(self._data_items, 1):
-                self._meter.command("set-data-item{}".format(idx), data_item)
+                self._meter.command("set-data-item%d" % idx, data_item)
 
         self._argcopy = data_items
 
