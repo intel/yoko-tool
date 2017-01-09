@@ -77,9 +77,9 @@ class _Transport(object):
             ioctl(fobj, operation)
         except IOError as err:
             if err.errno == os.errno.ENOTTY:
-                raise Error("\"{}\" is not a {} device".format(self._devnode, self._name))
-            raise Error("ioctl \"{}\" for device \"{}\" failed: {}".format(operation, self._devnode,
-                                                                           err))
+                raise Error("\"%s\" is not a %s device" % (self._devnode, self._name))
+            raise Error("ioctl \"%#X\" for device \"%s\" failed: %s" % (operation, self._devnode,
+                                                                        err))
 
 
 # Clear the device's input and output buffers
@@ -105,7 +105,7 @@ class USBTMC(_Transport):
         try:
             self._fd = os.open(self._devnode, os.O_RDWR)
         except OSError as err:
-            raise Error("error opening device \"{}\": {}".format(self._devnode, err))
+            raise Error("error opening device \"%s\": %s" % (self._devnode, err))
 
         # Make sure the device is a USBTMC device by invoking a USBTMC-specific IOCTL and checking
         # that it is supported.
@@ -121,9 +121,9 @@ class USBTMC(_Transport):
         try:
             os.write(self._fd, bytes(data, 'utf-8'))
         except OSError as err:
-            raise Error("error while writing to device \"{}\": {}".format(self._devnode, err))
+            raise Error("error while writing to device \"%s\": %s" % (self._devnode, err))
 
-        self._dbg("sent: {}".format(data))
+        self._dbg("sent: %s" % data)
 
     def read(self, size=4096):
         """Read an arbitrary amount of data directly from the device."""
@@ -131,9 +131,9 @@ class USBTMC(_Transport):
         try:
             data = os.read(self._fd, size).decode("utf-8")
         except OSError as err:
-            raise Error("error while reading from device \"{}\": \"{}\"".format(self._devnode, err))
+            raise Error("error while reading from device \"%s\": %s" % (self._devnode, err))
 
-        self._dbg("received: {}".format(data))
+        self._dbg("received: %s" % data)
 
         return data
 
