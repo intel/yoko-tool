@@ -323,7 +323,7 @@ class MyArgsParser(argparse.ArgumentParser):
 
     def error(self, message):
         """Print the error message and exit."""
-        raise Error("{}, {}".format(message, "-h for help"))
+        raise Error("%s, %s" % (message, "-h for help"))
 
 def fetch_devnode():
     """
@@ -391,7 +391,7 @@ def get_subcmds_help(cmd):
             subcmds.append(item["name"])
     elif cmd in ("get", "set"):
         for item in PROPERTIES:
-            if "{}-cmd".format(cmd) in item:
+            if "%s-cmd" % cmd in item:
                 subcmds.append(item["name"])
     elif cmd == "smoothing":
         for item in SMOOTHING_PROPERTIES:
@@ -427,14 +427,14 @@ def parse_arguments():
     pars = MyArgsParser(description=text, prog='yokotool')
 
     # The '--version' option
-    pars.add_argument("--version", action="version", version="%(prog)s " + "{}".format(VERSION))
+    pars.add_argument("--version", action="version", version="%(prog)s " + "%s" % VERSION)
 
     # The '--debug' option
     text = "print debugging information"
     pars.add_argument("-d", "--debug", action="store_true", help=text)
 
     # The '--devmodel' option
-    text = "the power meter device model (e.g., {})".format(SUPPORTED_DEVMODELS[0])
+    text = "the power meter device model (e.g., %s)" % SUPPORTED_DEVMODELS[0]
     pars.add_argument("-m", "--devmodel", default="wt310", help=text)
 
     subpars = pars.add_subparsers(title="supported commands", metavar="")
@@ -490,7 +490,7 @@ def parse_arguments():
         pars2 = subpars1.add_parser(prop["name"], help=prop["help"], description=descr)
         pars2.set_defaults(prop=prop)
         pars2.set_defaults(func=set_command)
-        text = "the value to assign to {}".format(prop["name"])
+        text = "the value to assign to \"%s\"" % prop["name"]
         pars2.add_argument("value", nargs="?", default=None, help=text)
 
     #
@@ -516,7 +516,7 @@ def parse_arguments():
         pars2 = subpars1.add_parser(prop["name"], help=prop["help"],
                                     description=prop["descr"])
         if prop["name"] in ("mode", "timer"):
-            text = "the value to assign to integration {}".format(prop["name"])
+            text = "the value to assign to \"integration %s\"" % prop["name"]
             pars2.add_argument("value", nargs="?", default=None, help=text)
         pars2.set_defaults(prop=prop)
         pars2.set_defaults(func=integration_properties)
@@ -531,11 +531,11 @@ def parse_arguments():
 
     # Add 'smoothing' properties
     for subcmd in SMOOTHING_PROPERTIES:
-        descr = "Get or set the smoothing {}.".format(subcmd["name"])
+        descr = "Get or set the smoothing %s." % subcmd["name"]
         pars2 = subpars1.add_parser(subcmd["name"], help=subcmd["help"], description=descr)
         pars2.set_defaults(subcmd=subcmd)
         pars2.set_defaults(func=smoothing_command)
-        text = "the value to assign to smoothing {}".format(subcmd["name"])
+        text = "the value to assign to \"smoothing %s\"" % subcmd["name"]
         pars2.add_argument("value", nargs="?", default=None, help=text)
 
     #
@@ -682,7 +682,7 @@ def info_command(meter):
     for prop in PROPERTIES:
         value = meter.command(prop["get-cmd"])
         if log.info_stream.isatty(): # pylint: disable=no-member
-            value = ESC_WHITE_BRIGHT + "{}".format(value) + ESC_END
+            value = ESC_WHITE_BRIGHT + "%s" % value + ESC_END
         log.info("%s: %s", prop["help"].capitalize(), value)
 
 def get_command(meter):
@@ -826,7 +826,7 @@ def integration_properties(meter):
              is_int(args.value) and 0 <= int(args.value) <= 36000000:
             meter.command(args.prop["set-cmd"], args.value)
         else:
-            raise Error("unacceptable argument \"{}\", use: {}".format(args.value, args_list))
+            raise Error("unacceptable argument \"%s\", use: %s" % (args.value, args_list))
 
 def smoothing_command(meter):
     """This function implements the 'smoothing' command."""
@@ -840,7 +840,7 @@ def smoothing_command(meter):
         elif args.value in args_list:
             meter.command(args.subcmd["set-cmd"], args.value)
         else:
-            raise Error("unacceptable argument \"{}\", use: {}".format(args.value, args_list))
+            raise Error("unacceptable argument \"%s\", use: %s" % (args.value, args_list))
 
 def calibrate_command(meter):
     """This function implements the 'calibrate' command."""
