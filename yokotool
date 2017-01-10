@@ -410,8 +410,12 @@ def is_int(value):
         return False
     return True
 
-def parse_arguments():
-    """A helper function which parses the input arguments."""
+def parse_arguments(listen_mode=False):
+    """
+    A helper function which parses the input arguments. The 'listen_mode' argument should be set to
+    'True' when the tool works in the listen mode in order to avoid adding the 'listen' command-line
+    command, because it cannot be used when we are already in the listen mode.
+    """
 
     devnode = fetch_devnode()
 
@@ -553,13 +557,14 @@ def parse_arguments():
     pars1.set_defaults(func=factory_reset_command)
 
     #
-    # Create a parser for the 'listen' command
+    # Create a parser for the 'listen' command when we're not in 'listen_mode'
     #
-    pars1 = subpars.add_parser("listen", help=allcmds["listen"]["help"],
-                               description=allcmds["listen"]["descr"])
-    pars1.set_defaults(func=listen_command)
-    text = "TCP port number ranging from 1 through 65535"
-    pars1.add_argument("-p", "--port", nargs="?", default=10024, help=text)
+    if not listen_mode:
+        pars1 = subpars.add_parser("listen", help=allcmds["listen"]["help"],
+                                   description=allcmds["listen"]["descr"])
+        pars1.set_defaults(func=listen_command)
+        text = "TCP port number ranging from 1 through 65535"
+        pars1.add_argument("-p", "--port", nargs="?", default=10024, help=text)
 
     global args
 
@@ -920,7 +925,7 @@ def listen_command(meter):
         try:
             command = command.decode('utf-8')
             sys.argv = sys.argv[0:1] + command.split()
-            args = parse_arguments()
+            args = parse_arguments(listen_mode=True)
             args.config = load_config()
             merge_args()
 
