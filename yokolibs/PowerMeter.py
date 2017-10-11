@@ -102,11 +102,11 @@ class PowerMeter(object):
     def _set_data_items(self, data_items):
         """Configure the power meter before reading data."""
 
-        if len(data_items) > self._meter.max_data_items:
+        self._get_data_items_to_read(data_items)
+
+        if len(self._data_items) > self._meter.max_data_items:
             raise Error("too many data items to read, please, specify at most %s items"
                         % self._meter.max_data_items)
-
-        self._get_data_items_to_read(data_items)
 
         if self._data_items:
             for idx, data_item in enumerate(self._data_items, 1):
