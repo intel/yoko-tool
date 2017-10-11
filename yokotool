@@ -757,6 +757,8 @@ def read_command(meter):
         if meter.command("get-integration-state") == "start":
             finish_with_integration = True
 
+    log.info(",".join(data_items))
+
     count = 0
     start_time = time.time()
 
@@ -781,7 +783,7 @@ def read_command(meter):
 
             count += 1
     except KeyboardInterrupt:
-        log.info("\rInterrupted, exiting")
+        log.warning("\rInterrupted, exiting")
 
 def integration_wait_subcommand(meter):
     """
