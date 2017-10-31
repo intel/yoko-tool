@@ -35,6 +35,7 @@ setup(
     author_email="artem.bityutskiy@linux.intel.com",
     version=get_version(),
     scripts=['yokotool'],
+    data_files=[('man/man1', ['docs/man1/yokotool.1'])],
     packages=find_packages(exclude=["test*"]),
     license='GPLv2',
     long_description="""This package provides yokotool - a Linux command-line tool for controlling
