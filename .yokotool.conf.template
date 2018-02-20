@@ -1,4 +1,0 @@
-# Settings related to the power meter and how Yoko tool connects to it
-[Connection]
-device_model=wt310
-device_node=/dev/usbtmc0

@@ -1,99 +1,83 @@
-.TH YOKOTOOL "1" "November 2016" "yoko-tools 1.4" "User Commands"
+.TH YOKOTOOL "1" "November 2016" "yoko-tool 2.0" "User Commands"
 
 
 .SH NAME
 
-yokotool - a tool to configure and control the Yokogawa WT310 power meter
+yokotool - a tool to control the Yokogawa power meters.
 
 
 .SH SYNOPSIS
 
 .nf
-yokotool DEVNODE [OPTIONS] [COMMAND [SUBCOMMAND] [ARGS]]
-.fi
-.nf
-yokotool [DEVNODE] [COMMAND [SUBCOMMAND]] {-h | --help}
-.fi
-.nf
-yokotool DEVNODE [COMMAND [SUBCOMMAND] ?]
-.fi
-.nf
-yokotool [DEVNODE] --version
+yokotool [CONFIG|DEVNODE] [OPTIONS] [COMMAND [SUBCOMMAND] [OPTIONS] [ARGS]]
+yokotool [COMMAND [SUBCOMMAND]] {-h }
 .fi
 
 
 .SH DESCRIPTION
 
-Yokotool is a tool for controlling the Yokogawa WT310 power meter over USB
-(RS-232, Ethernet and GP-IB are not supported).
+Yokotool is a command-line tool for controlling Yokogawa power meters in Linux.
 
-The command-line interface is based on subcommands. Each subcommand supports the
-\fB{-h | --help}\fP option which is meant to provide a quick help usage.
+Today only the WT210 and WT310 power meters are supported, and only over the USB and Serial (RS-234)
+communication interfaces. Most, but not all the possible power meter features are supported.
 
-The first parameter must always be the device node. The only exception is when
-using \fB{-h | --help}\fP and \fB--version\fP options, in which case the device
-node becomes optional.
+Many power yokotool commands correspond to the power meter feature and the user is supposed to
+learn about them from the power meter users's guide.
 
-The device model and device node parameters can be specified within
-\fB/home/$USER/.yokotool.conf\fP configuration file, which spares you the need to
-specify them from the command-line.
+The command-line interface is based on commands and sub-commands. Each command and sub-command
+supports the \fB-h\fP option which can be used for quick help.
 
-Below is the procedure explaining how to benefit from this capability.
+It is very convenient to create the \fByokotool.conf\fP configuration file and describe the power
+meter type, the device node name and other parameters there.
 
-- Yoko tool provides you with a template configuration file called
-\fB.yokotool.conf.template\fP located at the root folder of the project
-
-- \fB.yokotool.conf.template\fP is initialized with default device model and
-device node values
-
-- Copy the template file to your \fB/home/$USER/\fP folder, and rename it as
-\fB.yokotool.conf\fP:
-  $ cd yoko-tool
-  $ cp .yokotool.conf.template /home/$USER/.yokotool.conf
-
-- Edit your configuration file, update its contents if necessary and save it:
-  $ vi /home/$USER/.yokotool.conf
+This manual page is only a brief reference. Please, refer the Web-based documentation for more
+details.
 
 .SH OPTIONS
 
-.B [DEVNODE]
+.B CONFIG
+.RS
+Name of the \fByokotool.conf\fP configuration file section to find the power meter details from
+(device node name, baud rate, etc).
+.RE
+
+.B DEVNODE
 .RS
 The power meter device node (e.g., /dev/usbtmc0).
 .RE
 
-.B -h, --help
+.B --pmtype TYPE
+.RS
+Type of the power meter. Use "wt310" for Yokogawa WT310 and "wt210" for Yokogawa WT210.
+.RE
+
+.B --baudrate RATE
+.RS
+In case of the serial communication interface, the baud rate to use (e.g., 19200).
+.RE
+
+.B {-o | --outfile} OUTFILE
+.RS
+Redirect output to 'OUTFILE' instead of the terminal.
+.RE
+
+.B -h
 .RS
 Show help message and exit.
-
-This option is context-dependent, and it is designed to provide a quick help on
-how to use yokotool or a specific subcommand.
-
-.nf
-Usage examples:
-$ yokotool -h
-Print a short help message on how to use yokotool
-
-$ yokotool read -h
-Print a short help message on how to use read command
-
-$ yokotool set math -h
-Print a short help message on how to use set math subcommand
-.fi
 .RE
+
+This option is context-dependent, and it is designed to provide a quick help on how to use yokotool
+or a specific command. The help messages are are agnostic to the power meter type and only contains
+general information, common to all the supported power meter types.
 
 .B --version
 .RS
-Show program's version number and exit.
+Show program's version and exit.
 .RE
 
-.B -d, --debug
+.B -d
 .RS
-Print debugging information.
-.RE
-
-.B -m, --devmodel
-.RS
-The power meter device model (default value is wt310).
+Print debugging information. Very noisy.
 .RE
 
 .B Supported commands
@@ -101,63 +85,75 @@ The power meter device model (default value is wt310).
 .B info
 .RS
 .nf
-Print information about the power meter.
+Print information about the power meter. This command basically prints all the power meter
+properties.
 
-Usage examples:
-$ yokotool <devnode> info
 .fi
 .RE
 .RE
 
 .RS
-.B read [-l [LIMIT] | --limit [LIMIT]] ITEMS
+.B read [OPTIONS] ITEMS [-c PROGRAM]
 .RS
-Read power meter measurement data. ITEMS is a mandatory argument corresponding
-to 1 element or a comma-separated list of elements specifying what data to read.
-LIMIT is an optional argument specifying how many times or for how long to read
-the data. For example, \fBP,V,I\fP would mean active power, voltage, and current
-ITEMS.
+Read power meter measurement data. ITEMS is the mandatory argument specifying the data items to
+read (e.g., \fBP,V,I\fP means power, voltage, and current). To get the full list of supported data
+items, run
 
-The full list of ITEMS to read depends on the power meter that is used.
-To display this list, use \fB?\fP:
 .nf
-$ yokotool <devnode> read ?
+$ yokotool read
 .fi
 
-Generally, the command keeps reading the data and updating the screen with ITEMS
-at a certain interval (see \fBset interval\fP command). But there are some
-conditions when the command stops, and exits. The command can also be stopped
-with \fBCtrl-C\fP at any point.
+By default yokotool keeps reading the data until \fBCtrl-C\fP is pressed (except when integration is
+enabled). But you can limit this with the following options.
 
-If LIMIT is not specified, the command will keep reading the data forever,
-unless there is integration ongoing, in which case the command will stop reading
-the data when integration stops (see \fBintegration\fP command). Specify
-\fB-1 limit\fP to force reading forever, irrespective of the integration state.
+.B --count
+.RS
+How many data measurements to read.
+.RE
 
-LIMIT can either be the number of times to read ITEMS, or for how long to read
-ITEMS. Use an integer value to specify the former, and \fBHH:MM:SS\fP notation
-to specify the read time.
+.B --time
+.RS
+For how long to read the data. Use 'h', 'm', and 's' for 'hours', 'minutes' and 'seconds'. The
+default unit is seconds.
+.RE
+
+.B --ignore-integration
+.RS
+Do not stop reading data when integration time is over.
+.RE
+
+The output format is CSV. The first line is the CSV header, the following lines are the
+comma-separated values, aligned for readability. Use the following options to adjust the output.
+
+.B --no-header
+.RS
+Do not print the CSV header.
+.RE
+
+.B --no-align
+.RS
+Do not align the CSV columns.
+.RE
+
+.B {-o | --outfile} OUTFILE
+.RS
+Redirect output to 'OUTFILE' instead of the terminal.
+.RE
+
+Yokotool can also run an program and read the measurement data until the program exits.
+Use the \fB-c\fP option to specify the program. Make sure to have it at the end, because
+every argument specified after -c belongs to the program.
 
 .nf
 Usage examples:
-$ yokotool <devnode> read I,V,P
-Read current, voltage, and active power
+$ yokotool read I,V,P
+Read current, voltage, and active power.
 
-$ yokotool <devnode> read -l 0:5:20 P
-Keep reading the power for 5 mins 20 secs
+$ yokotool read P --time=1h30m
+Keep reading the power for 1 hour and 30 minutes.
 
-$ yokotool <devnode> read I,V
-read current and voltage, if integration is ongoing, stop reading when
-Integration ends, otherwise read forever
-
-$ yokotool <devnode> read P -l 11:0
-Read power for 11 minutes
-
-$ yokotool <devnode> read -l 128 P,Q
-Read active and reactive power 128 times
-
-$ yokotool <devnode> read I,V,P,Lambda,Vppeak -l -1
-Read current, voltage, active power, power factor, and peak voltage forever
+$ yokotool read P -c my_script --opt
+Execute "my_script --opt" and read power until "my_script" exits.
 .fi
 .RE
 .RE
@@ -165,21 +161,21 @@ Read current, voltage, active power, power factor, and peak voltage forever
 .RS
 .B get PROPERTY
 .RS
-Get the value of an individual power meter PROPERTY.
+Get power meter property.
 
-The full list of properties to get depends on the power meter that is used.
-To display this list, use \fB?\fP:
+Full list of properties that can be retrieved depends on the power meter model.
+To display this list, use \fB--list\fP:
 .nf
-$ yokotool <devnode> get ?
+$ yokotool get --list
 .fi
 
 .nf
 Usage examples:
-$ yokotool <devnode> get id
-$ yokotool <devnode> get measurement-mode
-$ yokotool <devnode> get sync-source
-$ yokotool <devnode> get crest-factor
-$ yokotool <devnode> get wiring-system
+$ yokotool <devnode> get interval
+Get the data update interval.
+
+$ yokotool <devnode> get current-range
+Get the current range.
 .fi
 .RE
 .RE
@@ -187,157 +183,60 @@ $ yokotool <devnode> get wiring-system
 .RS
 .B set PROPERTY VALUE
 .RS
-Set the VALUE of an individual power meter PROPERTY.
+Set a property to a value.
 
-The full list of values to set for a PROPERTY depends on the power meter that is used.
-To display this list, use \fB?\fP:
+Full list of properties that can be modified depends on the power meter model.
+To display this list, use \fB--list\fP:
+
 .nf
-$ yokotool <devnode> set <property> ?
+$ yokotool set --list
 .fi
 
 .nf
 Usage examples:
-$ yokotool <devnode> set interval 0.1
-$ yokotool <devnode> set voltage-auto-range on
-$ yokotool <devnode> set measurement-mode rms
-$ yokotool <devnode> set crest-factor 3
+$ yokotool set interval 0.1
+Set the data update interval to 0.1 second.
+
+$ yokotool set current-range auto
+Enable the current auto-range feature.
+.fi
+
+Run the "set PROPERTY" command without any value to get the list of allowed values.
+
+.nf
+Example:
+$ yokotool set current-range
+Get the list of allowed current range values.
 .fi
 .RE
 .RE
 
 .RS
-.B integration SUBCOMMAND|PROPERTY [VALUE]
+.B integration SUBCOMMAND [VALUE]
 .RS
-Integration is a power meter feature to integrate active power and current in
-order to get watt-hours (Wh, energy) and ampere-hours (Ah, charge). Positive
-and negative watts (Whp, Whm) and ampere-hours (Ahp, Ahm) are calculated
-separately, and available for reading (negative ampere-hours are only available
-for DC, though).
+This command makes it possible to use the integration power meter feature. For example, this feature
+is useful to calculate get watt-hours (Wh) and ampere-hours (Ah). Please, refer to the power meter
+usage manual for the details.
 
-There are 5 possible integration states:
+You can start, stop (pause) and reset integration with the \fBstart\fP, \fBstop\fP and \fBreset\fP
+subcommands.
 
-- When integration is in \fBstart\fP state, it has been started and it is
-currently ongoing. The running values of the integrated parameters
-(Wh, Whp, Ah, etc) can be read at any time, using \fBread\fP command.
+To wait for integration to finish use the \fBwait\fP subcommand. To set integration mode and timer
+use the \fBmode\fP and \fBtimer\fP subcommands.
 
-- When integration is in \fBstop\fP state, it has been stopped using
-\fBintegration stop\fP command. The integrated values are preserved, and do not
-change. Integration can be resumed using \fBintegration start\fP command, in
-which case computations will continue.
-
-- When integration is in \fBreset\fP state, it has been reset and the integrated
-parameters are set to \fBnan\fP (undefined value). Integration can be started
-again using \fBintegration start\fP command, in which case computations will
-start from scratch.
-
-- When integration is in \fBtimeup\fP state, a timer fired up, integration
-stopped, and the results of integration can be read with \fBread\fP command.
-The only way to get out of this state is to run \fBintegration reset\fP command.
-
-- Finally, when integration is in \fBerror\fP state, the integration block needs
-to be reset because an error occurred.
-
-The list of integration states and properties can also be displayed with \fB?\fP:
-.nf
-$ yokotool <devnode> integration ?
-.fi
-
-An integration \fBtimer\fP can be used to define for how long to run the
-computations (see \fBintegration timer\fP command). Setting the timer to
-\fB0\fP means running the computations forever (or until something overflows or
-integration time reaches its maximum possible value).
-
-There are 2 possible integration modes:
-
-- In \fBnormal\fP mode, the integration block goes into \fBtimeup\fP state when
-the timer fires up.
-
-- In \fBcontinuous\fP mode though, it just restarts, starts calculating from
-scratch, and continues this way until integration is stopped or reset.
-
-To select the integration mode, see \fBintegration mode\fP command.
-
-The list of properties for the integration command is \fBstate\fP, \fBmode\fP and
-\fBtimer\fP. \fBstate\fP property  reflects the ongoing state of integration command,
-thus it cannot be set directly unlike \fBmode\fP and \fBtimer\fP.
-
-The list of values for an integration property can also be displayed with \fB?\fP:
-.nf
-$ yokotool <devnode> integration <property> ?
-.fi
+Use the \fBstate\fP subcommand to get current integration state.
 
 .nf
 Usage examples:
-$ yokotool <devnode> integration reset
-Reset the integration
+$ yokotool integration reset
+Reset integration (this is what you want if you do not really care about the integration feature).
 
-$ yokotool <devnode> integration mode normal
-Switch to the normal (one-shot) mode
-
-$ yokotool <devnode> integration timer 10
-Set the timer to 10 seconds
-
-$ yokotool <devnode> set interval 0.5
-Set data update interval to half a second
-
-$ yokotool <devnode> integration start
-Start the integration
-
-$ yokotool <devnode> read 'Wh,Ah'
-Read watt-hours and apere-hours until integration timer fires up
-(i.e., for 10 seconds)
+$ yokotool integration stop
+Stop integration, which actually means to pause it.
 .fi
 .RE
 .RE
 
-.RS
-.B smoothing PROPERTY [VALUE]
-.RS
-Smoothing is useful when measurement data fluctuates too much, and becomes
-difficult to read or follow. This feature is referred to as \fBaveraging\fP in
-the user manual of Yokogawa WT300 power meter series.
-
-The power meter supports 3 smoothing properties:
-
-- The smoothing \fBstatus\fP specifies if smoothing is switched \fBon\fP or \fBoff\fP.
-When smoothing is switched on, the measured data item is in fact a computed average value.
-
-- The smoothing \fBtype\fP can be set to \fBlinear\fP or \fBexponential\fP. This
-setting influences how smoothing is computed.
-
-- The smoothing \fBfactor\fP can be \fB8, 16, 32, 64\fP. When \fBlinear\fP
-smoothing type is set, then \fBfactor\fP configures the number of elements to
-use for calculating the running average value (i.e. the averaging \fBwindow\fP
-length). When \fBexponential\fP smoothing type is set, then \fBfactor\fP
-defines the \fBattenuation constant\fP. And the larger the constant is, the
-\fBsmoother\fP the measurement results are.
-
-The list of smoothing properties can be displayed with \fB?\fP:
-.nf
-$ yokotool <devnode> smoothing ?
-.fi
-
-The list of values for a smoothing property can also be displayed with \fB?\fP:
-.nf
-$ yokotool <devnode> smoothing <property> ?
-.fi
-
-.nf
-Usage examples:
-$ yokotool <devnode> smoothing status
-Get smoothing status
-
-$ yokotool <devnode> smoothing status on
-Enable smoothing
-
-$ yokotool <devnode> smoothing type exponent
-Set smoothing type to exponential
-
-$ yokotool <devnode> smoothing factor
-Get smoothing factor
-.fi
-.RE
-.RE
 
 .RS
 .B calibrate
@@ -353,43 +252,7 @@ Reset to factory settings.
 .RE
 .RE
 
-.RS
-.B listen [-p [PORT] | --port [PORT]]
-.RS
-Listen on a TCP port defined by user, process commands directed there, and route
-results to that same TCP port (default port value is 10024).
-
-When this command is used, yokotool switches to the \fBserver\fP mode of
-operation. In this mode, it listens to a TCP port and waits for incoming
-connections. Users may act as \fBclients\fP, connect to the port (only one user
-is allowed at once) and send commands to yokotool. Commands are basically the
-same as the command-line commands and subcommands, except that it is unnecessary
-to specify the power meter device node. Yokotool handles the commands and sends
-the reply back over the same TCP connection.
-
-If PORT is not specified, the default port number 10024 is used. When specified,
-PORT is expected to be an integer value ranging from 1 through 65535.
-
-.nf
-Usage examples:
-$ yokotool <devnode> listen -p 10033
-Server side - listen on a custom TCP port
-
-$ telnet <host> 10033
-Client side - connect to the TCP port
-
-$ set interval 1
-Client side - set the power meter's interval property to 1 second
-
-$ read V,I,P 0:10
-Client side - request to read voltage, current, and active power for 10 seconds
-.fi
-.RE
-.RE
-
-
 .SH AUTHORS
-
 .nf
 Artem Bityutskiy <artem.bityutskiy@linux.intel.com>.
 Helia Correia <helia.correia@linux.intel.com>.
@@ -397,11 +260,7 @@ Helia Correia <helia.correia@linux.intel.com>.
 
 
 .SH REPORTING BUGS
-
 .nf
-Please, report bugs to:
-.RS
-Helia Correia <helia.correia@linux.intel.com>
+GitHub: https://github.com/intel/yoko-tool
 Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
-.RE
 .fi

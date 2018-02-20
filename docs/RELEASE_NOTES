@@ -28,7 +28,7 @@ Release 1.4
 Release 1.3
 ~~~~~~~~~~~
 
-yoko-tools (1.3) trusty; urgency=low
+yoko-tool (1.3) trusty; urgency=low
 
 1. yokotool: fix integration start
 
@@ -46,7 +46,7 @@ yoko-tools (1.3) trusty; urgency=low
 Release 1.2
 ~~~~~~~~~~~
 
-yoko-tools (1.2) trusty; urgency=low
+yoko-tool (1.2) trusty; urgency=low
 
 1. Set a default value to -m | --devmodel command-line argument
 
@@ -58,7 +58,7 @@ yoko-tools (1.2) trusty; urgency=low
 Release 1.1
 ~~~~~~~~~~~
 
-yoko-tools (1.1) trusty; urgency=low
+yoko-tool (1.1) trusty; urgency=low
 
 1. Bug fix:
    Remove "arg" useless parameter since it would provoke the following error:

@@ -18,28 +18,30 @@ import re
 from setuptools import setup, find_packages
 
 def get_version():
-    """Fetch the project version number from the 'yokotool' file."""
+    """Fetch project version number."""
 
-    with open("yokotool", "r") as fobj:
+    with open("yokolibs/yokotool.py", "r") as fobj:
         for line in fobj:
             matchobj = re.match(r'^VERSION = "(\d+.\d+)"$', line)
             if matchobj:
                 return matchobj.group(1)
-
-    return None
+    assert False
 
 setup(
-    name="yoko-tools",
-    description="Tool to control the Yokogawa WT310 power meter",
+    name="yoko-tool",
+    description="Tool to control the Yokogawa power meters",
     author="Artem Bityutskiy",
     author_email="artem.bityutskiy@linux.intel.com",
-    version=get_version(),
-    scripts=['yokotool'],
-    data_files=[('man/man1', ['docs/man1/yokotool.1'])],
+    version="2.0",
+    entry_points={
+        'console_scripts': ['yokotool=yokolibs.yokotool:main'],
+    },
+    data_files=[('man/man1', ['docs/man1/yokotool.1']),
+                ("share/yoko-tool", ["yokotool.conf"])],
     packages=find_packages(exclude=["test*"]),
     license='GPLv2',
+    install_requires=["pyserial"],
     long_description="""This package provides yokotool - a Linux command-line tool for controlling
-                        the Yokogawa WT310 power meter. Namely, it allows for configuring the power
-                        meter and reading the measurements data. There are also python modules which
-                        provide the power meter control APIs for external python programs."""
+                        Yokogawa power meters. There are also python modules providing the API for
+                        python programs."""
 )
