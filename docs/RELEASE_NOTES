@@ -1,3 +1,15 @@
+Release 2.0
+~~~~~~~~~~~
+
+This is a major update which also slightly changes the PowerMeter.py API.
+
+1. WT210 power meter is now also supported.
+2. A test suite was added. Currently it requires a real power meter device.
+3. Added README.md file with improved documentation.
+4. Listen mode was removed because no one used it.
+5. Added auto-completions via the 'argcomplete' python project.
+6. Support both python 3.x and python 2.7.
+
 Release 1.4
 ~~~~~~~~~~~
 
