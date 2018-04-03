@@ -41,7 +41,7 @@ except ImportError:
 
 from yokolibs import Transport, PowerMeter, Helpers, _config, _logging
 
-VERSION = "1.4"
+VERSION = "2.0"
 
 LOG = logging.getLogger()
 
