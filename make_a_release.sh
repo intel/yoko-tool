@@ -117,5 +117,7 @@ The commands would be:
 
 git push origin $tag_name
 git push origin devel:devel
+git checkout master
+git pull . devel
 git push origin master:master
 EOF
