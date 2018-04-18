@@ -675,7 +675,7 @@ def main():
     except PowerMeter.Error as err:
         error_out(err)
     except KeyboardInterrupt:
-        error_out("\rInterrupted, exiting")
+        error_out("interrupted, exiting")
 
 if __name__ == "__main__":
     sys.exit(main())
