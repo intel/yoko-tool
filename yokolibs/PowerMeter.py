@@ -140,3 +140,11 @@ class PowerMeter:
         object representing a specific power meter model (eg., WT310).
         """
         return getattr(self._pmeter, name)
+
+    def __enter__(self):
+        """Enter the runtime context."""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Exit the runtime context."""
+        self.close()
