@@ -24,7 +24,6 @@ This is a 'py.test' test for the PowerMeter module.
 
 from __future__ import absolute_import, division, print_function
 import os
-import time
 import random
 import logging
 import subprocess
@@ -37,7 +36,12 @@ class CmdLineArgs(object):
     devnode = None
 
 _LOG = logging.getLogger()
-_logging.setup_logger(_LOG, getattr(logging, pytest.config.getoption("--loglevel").upper()))
+try:
+    import sys
+    _LOG_LEVEL = sys.argv[sys.argv.index("--loglevel") + 1].upper()
+    _logging.setup_logger(_LOG, getattr(logging, _LOG_LEVEL))
+except ValueError:
+    pass
 
 class YokotoolPowerMeter():
     """
