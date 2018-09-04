@@ -97,7 +97,7 @@ class PowerMeter:
         wrapper.initial_indent = " * "
         wrapper. subsequent_indent = "   "
         for pmtype, cls, err in errors:
-            msg = "%s: %s" % (pmtype, cls, err)
+            msg = "%s: %s %s" % (pmtype, cls, err)
             lines += wrapper.wrap(msg)
 
         raise Error("\n".join(lines))
