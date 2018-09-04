@@ -60,7 +60,7 @@ class PowerMeter:
         raise Error("no help text for '%s'" % cmd)
 
     def close(self):
-        """Close the communication interface with the power meter."""
+       """Close the communication interface with the power meter."""
 
         if self._pmeter:
             self._pmeter.close()
