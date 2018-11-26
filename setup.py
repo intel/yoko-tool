@@ -17,10 +17,10 @@
 import re
 from setuptools import setup, find_packages
 
-def get_version():
-    """Fetch project version number."""
+def get_version(filename):
+    """Fetch the project version number."""
 
-    with open("yokolibs/yokotool.py", "r") as fobj:
+    with open(filename, "r") as fobj:
         for line in fobj:
             matchobj = re.match(r'^VERSION = "(\d+.\d+)"$', line)
             if matchobj:
@@ -32,7 +32,7 @@ setup(
     description="Tool to control the Yokogawa power meters",
     author="Artem Bityutskiy",
     author_email="artem.bityutskiy@linux.intel.com",
-    version="2.0",
+    version=get_version("yokolibs/yokotool.py"),
     entry_points={
         'console_scripts': ['yokotool=yokolibs.yokotool:main'],
     },
