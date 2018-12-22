@@ -23,6 +23,7 @@ the instrument, such as 'readline()' and 'writeline()'.
 from __future__ import absolute_import, division, print_function
 import os
 import stat
+import errno
 import logging
 from fcntl import ioctl
 
@@ -76,7 +77,7 @@ class _TransportBase():
         try:
             ioctl(fobj, operation)
         except IOError as err:
-            if err.errno == os.errno.ENOTTY:
+            if err.errno == errno.ENOTTY:
                 raise Error("'%s' is not a '%s' device" % (self.devnode, self.name))
             raise TransportError("ioctl '%#X' for device '%s' failed:\n%s"
                                  % (operation, self.devnode, err))
