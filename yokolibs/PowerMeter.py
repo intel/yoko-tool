@@ -28,6 +28,7 @@ import logging
 from collections import OrderedDict
 
 from yokolibs import Transport, _wt310, _wt210
+from yokolibs._config import CONFIG_OPTIONS as _KWARGS
 # pylint: disable=unused-import
 from yokolibs._exceptions import Error, ErrorBadArgument, ErrorBadResponse
 from yokolibs._yokobase import COMMANDS
@@ -105,8 +106,15 @@ class PowerMeter:
     def __init__(self, transport=None, **kwargs):
         """
         The class constructor. The optional 'transport' argument specifies the transport object to
-        use. If it is not provided, the rest of the arguments are used to create the transport.
+        use. If it is not provided, the rest of the arguments are used to create the transport. The
+        allowed keys in 'kwargs' are the same as the configuration file options (e.g., 'devnode',
+        etc).
         """
+
+        # Validate kwargs.
+        for kwarg in kwargs:
+            if kwarg not in _KWARGS:
+                raise Error("unknown keyword argument '%s'" % kwargs)
 
         self._transport = transport
         if not transport:
