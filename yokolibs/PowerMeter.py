@@ -58,7 +58,7 @@ class PowerMeter:
 
         if self.commands[cmd]["value-descr"]:
             return self.commands[cmd]["value-descr"]
-        elif self.commands[cmd]["choices"]:
+        if self.commands[cmd]["choices"]:
             return ", ".join(self.commands[cmd]["choices"])
 
         raise Error("no help text for '%s'" % cmd)
@@ -98,7 +98,7 @@ class PowerMeter:
         wrapper.initial_indent = " * "
         wrapper. subsequent_indent = "   "
         for pmtype, cls, err in errors:
-            msg = "%s: %s" % (pmtype, cls, err)
+            msg = "%s (%s): %s" % (pmtype, cls, err)
             lines += wrapper.wrap(msg)
 
         raise Error("\n".join(lines))
