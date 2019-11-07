@@ -33,7 +33,7 @@ USER_CFG_FILE_NAME = ".yokotool.conf"
 _LOG = logging.getLogger("main")
 
 # The yokotool configuration options.
-_CONFIG_OPTIONS = {
+CONFIG_OPTIONS = {
     "devnode"  : {"type" : str},
     "baudrate" : {"type" : int},
     "pmtype"   : {"type" : str},
@@ -53,16 +53,16 @@ def _process_config_file(cfgfile, secname, config):
 
     # Merge the found configuration file section into 'config'.
     for name, val in cfgfile.items(secname):
-        if name not in _CONFIG_OPTIONS:
+        if name not in CONFIG_OPTIONS:
             raise Error("unknown configuration option '%s' in section '%s' of '%s'"
                         % (name, secname, cfgfile.path))
 
         try:
-            val = _CONFIG_OPTIONS[name]["type"](val)
+            val = CONFIG_OPTIONS[name]["type"](val)
         except (ValueError, TypeError):
             raise Error("bad value for the '%s option in section '%s' of '%s':\n"
                         "cannot translate the value to the '%s' type"
-                        % (name, secname, cfgfile.path, _CONFIG_OPTIONS[name]["type"].__name__))
+                        % (name, secname, cfgfile.path, CONFIG_OPTIONS[name]["type"].__name__))
 
         config[name] = val
 
@@ -105,7 +105,7 @@ def process_config(secname=None, args=None):
                     % (secname, "\n* ".join(paths)))
 
     if args:
-        for name in _CONFIG_OPTIONS:
+        for name in CONFIG_OPTIONS:
             if hasattr(args, name) and getattr(args, name) is not None:
                 config[name] = getattr(args, name)
 
