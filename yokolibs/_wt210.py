@@ -123,7 +123,7 @@ _TWEAKS = {
 class WT210(_yokobase.YokoBase):
     """This class implements Yokogawa WT210 power meter."""
 
-    pmtype = "wt210"
+    pmtypes = ("wt210", )
     name = "Yokogawa WT210"
 
     def _set_math_cmd(self, _, arg):
@@ -245,6 +245,7 @@ class WT210(_yokobase.YokoBase):
         # Call the base class constructor first.
         super(WT210, self).__init__(transport)
 
+        self.pmtype = "wt210"
         self.max_data_items = _MAX_DATA_ITEMS
 
         # Indexes for the data items that were configured to be read by 'configure-data-items'.
@@ -270,7 +271,7 @@ class WT210(_yokobase.YokoBase):
         ids = self._command("get-id")
 
         match = re.match(r"WT\d+", ids)
-        if match and match.group(0) != "WT210":
+        if match and match.group(0).lower() != "wt210":
             raise Error("'%s' is not a WT210 power meter" % transport.devnode)
 
         self._command("set-remote-mode", "on")

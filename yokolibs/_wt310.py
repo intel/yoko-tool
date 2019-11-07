@@ -16,7 +16,8 @@
 # General Public License for more details.
 
 """
-This module implements the Yokogawa WT310 power meter support.
+This module implements the Yokogawa WT310 power meter support. It also works for WT330 series, but
+only one input element is supported.
 """
 
 from __future__ import absolute_import, division, print_function
@@ -168,8 +169,8 @@ def _verify_data_items_count(item):
 class WT310(_yokobase.YokoBase):
     """This class implements Yokogawa WT310 power meter."""
 
-    pmtype = "wt310"
-    name = "Yokogawa WT310"
+    pmtypes = ("wt310", "wt330", "wt333", "wt333")
+    name = "Yokogawa WT310 or WT33x"
 
     def _verify_math_name(self, name):
         """
@@ -263,6 +264,7 @@ class WT310(_yokobase.YokoBase):
         # Call the base class constructor first.
         super(WT310, self).__init__(transport)
 
+        self._pmtype = None
         self.max_data_items = _MAX_DATA_ITEMS
 
         self._populate_data_items(_WT310_DATA_ITEMS, _DITT)
@@ -277,8 +279,15 @@ class WT310(_yokobase.YokoBase):
 
         # Verify that we are dealing with a WT310.
         ids = self._command("get-id")
-        if "WT310" not in ids:
-            raise Error("'%s' is not a WT310 power meter" % transport.devnode)
+        split_ids = ids.split(",")
+        if len(ids) < 2:
+            raise Error("'%s' has ID string '%s' and it does not look like a WT310 power meter"
+                        % (transport.devnode, ids))
+
+        self.pmtype = split_ids[1].strip().lower()
+        if not any([self.pmtype.startswith(pmtype) for pmtype in self.pmtypes]):
+            raise Error("'%s' has ID string '%s' and it does not look like a WT310 power meter"
+                        % (transport.devnode, ids))
 
         # Set data format to ascii.
         self._command("set-data-format", "ascii")

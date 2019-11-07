@@ -34,13 +34,9 @@ from yokolibs._exceptions import Error, ErrorBadArgument, ErrorBadResponse
 from yokolibs._yokobase import COMMANDS
 # pylint: enable=unused-import
 
-# Supported power meter types.
-PMTYPES = OrderedDict([(_wt310.WT310.pmtype, _wt310.WT310.name),
-                       (_wt210.WT210.pmtype, _wt210.WT210.name)])
-
 # Class objects for the supported power meters.
-_PMTYPE_CLASSES = OrderedDict([(_wt310.WT310.pmtype, _wt310.WT310),
-                               (_wt210.WT210.pmtype, _wt210.WT210)])
+_PMTYPE_CLASSES = OrderedDict([(_wt310.WT310.pmtypes, _wt310.WT310),
+                               (_wt210.WT210.pmtypes, _wt210.WT210)])
 
 _LOG = logging.getLogger("PowerMeter")
 
@@ -123,15 +119,21 @@ class PowerMeter:
         pmtype = kwargs.get("pmtype", None)
         if pmtype:
             pmtype = pmtype.lower()
-            if pmtype not in _PMTYPE_CLASSES:
-                pms = "\n".join(("* %s - %s" % (typ, dsc) for typ, dsc in PMTYPES.items()))
+            for pmtypes, cls in _PMTYPE_CLASSES.items():
+                if pmtype in pmtypes:
+                    self._pmeter = cls(self._transport)
+                    break
+            else:
+                msg = []
+                for pmtypes, pmclass in _PMTYPE_CLASSES.items():
+                    msg.append("* %s - %s" % (", ".join(pmtypes), pmclass.name))
                 raise Error("unsupported power meter type '%s', supported power meter types "
-                            "are:\n%s" % (pmtype, pms))
-            self._pmeter = _PMTYPE_CLASSES[pmtype](self._transport)
+                            "are:\n%s" % (pmtype, "\n".join(msg)))
         else:
             errors = []
             self._pmeter = None
-            for pmtype, cls in _PMTYPE_CLASSES.items():
+            for pmtypes, cls in _PMTYPE_CLASSES.items():
+                pmtype = "/".join(pmtypes)
                 try:
                     _LOG.debug("probing '%s'", pmtype)
                     self._pmeter = cls(self._transport)
