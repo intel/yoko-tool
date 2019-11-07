@@ -45,7 +45,6 @@ def _process_config_file(cfgfile, secname, config):
     the 'secname' section.
     """
 
-    orig_secname = secname
     if not secname:
         secname = "default"
 
