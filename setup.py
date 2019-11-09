@@ -36,7 +36,7 @@ setup(
     entry_points={
         'console_scripts': ['yokotool=yokolibs.yokotool:main'],
     },
-    data_files=[('man/man1', ['docs/man1/yokotool.1']),
+    data_files=[('share/man/man1', ['docs/man1/yokotool.1']),
                 ("share/yoko-tool", ["yokotool.conf"])],
     packages=find_packages(exclude=["test*"]),
     license='GPLv2',
