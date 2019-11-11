@@ -44,13 +44,15 @@ Project web page: [https://01.org/yoko-tool](https://01.org/yoko-tool).
 
 # What is supported
 
-Today only the WT210 and WT310 power meters are supported, and only over the USB and Serial (RS-234)
-communication interfaces. GPIB is not supported because Linux generally lacks GPIB drivers. The
-Ethernet interface is not supported because the authors do not have a power meter with this
-communication interface.
+Today the WT210 and WT310 power meters are supported, and WT320/WT330 are partially supported.
 
-Most, but not all the possible power meter features are supported, but the missing ones should be
-easy to add. For example, harmonics measurement commands are missing.
+WT320/WT330 are basically the same as WT310, but they include 2 or 3 measurement elements.
+Yokotool supports only one element (the default one), and it does not include the option of
+selecting the element.
+
+Today only the USB and Serial (RS-234) communication interfaces are supported. GPIB is not supported
+because Linux generally lacks GPIB drivers. The Ethernet interface is not supported because the
+authors do not have a power meter with this communication interface.
 
 # Tested configuration
 
@@ -58,6 +60,7 @@ This project comes with a test suite and tests passed with no errors on the foll
 configurations:
 
 * WT310E over USB and Serial
+* WT313E over USB (element 0 only)
 * WT210 over Serial
 
 # Installation
