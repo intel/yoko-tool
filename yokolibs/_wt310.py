@@ -169,7 +169,7 @@ def _verify_data_items_count(item):
 class WT310(_yokobase.YokoBase):
     """This class implements Yokogawa WT310 power meter."""
 
-    pmtypes = ("wt310", "wt330", "wt333", "wt333")
+    pmtypes = ("wt310", "wt330", "wt332", "wt333")
     name = "Yokogawa WT310 or WT33x"
 
     def _verify_math_name(self, name):
