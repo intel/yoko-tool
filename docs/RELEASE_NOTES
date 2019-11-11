@@ -1,3 +1,9 @@
+Release 2.1
+~~~~~~~~~~~
+
+1. Added partial WT33x power meter suppport.
+2. Fixed man page installation failure.
+
 Release 2.0
 ~~~~~~~~~~~
 
