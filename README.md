@@ -1,9 +1,10 @@
 <!--
+Copyright (c) 2013-2018 Intel, Inc.
+SPDX-License-Identifier: GPL-2.0-only
+
 -*- coding: utf-8 -*-
 vim: ts=4 sw=4 tw=100 et ai si
 
-Copyright (c) 2013-2018 Intel, Inc.
-License: GPLv2
 Author: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 -->
 - [Introduction](#introduction)
