@@ -61,7 +61,7 @@ This project comes with a test suite and tests passed with no errors on the foll
 configurations:
 
 * WT310E over USB and Serial
-* WT313E over USB (element 0 only)
+* WT333E over USB (element 0 only)
 * WT210 over Serial
 
 # Installation
