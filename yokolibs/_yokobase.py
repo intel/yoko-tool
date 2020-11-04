@@ -607,7 +607,6 @@ class YokoBase():
         Yield the (cmd_part, get_cmd, set_cmd) tuples for each possible data item command. Must be
         implemented by the child class.
         """
-        pass
 
     def _populate_choices(self, choices):
         """Populate the valid values for various WT310 commands to 'self.commands'."""
@@ -867,7 +866,7 @@ class YokoBase():
 
         self._command(auto_range_cmd, "off")
         choices = self.commands[cmd]["choices"]
-        if arg == choices[1] or arg == choices[-1]:
+        if arg in (choices[1], choices[-1]):
             # The first and the last current/voltage range availability depends on the crest factor.
             what = cmd.split("-")[1]
             crest = self._command("get-crest-factor")

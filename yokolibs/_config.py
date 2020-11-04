@@ -13,6 +13,7 @@ This is an internal module that parses the yokotool configuration file.
 """
 
 import os
+import pprint
 import logging
 try:
     import ConfigParser as configparser
@@ -103,7 +104,6 @@ def process_config(secname=None, args=None):
                 config[name] = getattr(args, name)
 
     if _LOG.getEffectiveLevel() == logging.DEBUG:
-        import pprint
         _LOG.debug("the final configuration:\n%s", pprint.pformat(config, indent=4))
 
     return config

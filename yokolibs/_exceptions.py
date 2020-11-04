@@ -46,3 +46,6 @@ class ErrorBadResponse(Error):
         if not msg and raw_cmd and response:
             msg = "unexpected power meter response '%s' to the '%s' command" % (response, raw_cmd)
         super(ErrorBadResponse, self).__init__(msg)
+
+class TransportError(Error):
+    """A class for all errors raised by Transport module."""

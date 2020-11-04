@@ -14,18 +14,24 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
 
+"""The standard python packaging script."""
+
 import re
 from setuptools import setup, find_packages
 
 def get_version(filename):
     """Fetch the project version number."""
 
+    ver = None
+
     with open(filename, "r") as fobj:
         for line in fobj:
             matchobj = re.match(r'^VERSION = "(\d+.\d+)"$', line)
             if matchobj:
-                return matchobj.group(1)
-    assert False
+                ver = matchobj.group(1)
+                break
+    assert ver
+    return ver
 
 setup(
     name="yoko-tool",

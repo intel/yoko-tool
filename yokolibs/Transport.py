@@ -18,13 +18,17 @@ import os
 import stat
 import errno
 import logging
+import textwrap
 from fcntl import ioctl
 
-from yokolibs._exceptions import Error
+from yokolibs._exceptions import Error, TransportError
 
-class TransportError(Error):
-    """A class for all errors raised by this module."""
-    pass
+try:
+    import serial
+except ImportError:
+    raise TransportError("the serial transport is not supported on this system because it is "
+                         "missing the 'serial' Python module. Please, install it. It usually comes "
+                         "from the 'pyserial' package.")
 
 class _BadInput(Error):
     """
@@ -32,7 +36,6 @@ class _BadInput(Error):
     device type may be not what we assume (e.g., USB vs Serial) and a situation when the input
     arguments are incorrect.
     """
-    pass
 
 # This makes sure all classes are the new-style classes by default.
 __metaclass__ = type # pylint: disable=invalid-name
@@ -49,11 +52,9 @@ class _TransportBase():
 
     def readline(self):
         """Abstract method to be implemented in child classes."""
-        pass
 
     def writeline(self, data):
         """Abstract method to be implemented in child classes."""
-        pass
 
     def queryline(self, command):
         """Write 'command' and return the read response."""
@@ -217,14 +218,6 @@ class _Serial(_TransportBase):
         super(_Serial, self).__init__(devnode)
 
         self._ser = None
-
-        try:
-            import serial
-        except ImportError:
-            raise TransportError("the serial transport is not supported on this system because it "
-                                 "is missing the 'serial' Python module. Please, install it. It "
-                                 "usually comes from the 'pyserial' package.")
-
         self._serial = serial
         try:
             self._ser = serial.Serial()
@@ -274,8 +267,6 @@ class Transport(): # pylint: disable=too-few-public-methods
                 raise
             except Error as err:
                 errors.append((tclass, err))
-
-        import textwrap
 
         wrapper = textwrap.TextWrapper(width=79)
 

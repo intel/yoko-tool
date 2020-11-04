@@ -18,6 +18,7 @@ This module provides API for controlling Yokogawa power meters.
 from __future__ import absolute_import, division, print_function
 
 import logging
+import textwrap
 from collections import OrderedDict
 
 from yokolibs import Transport, _wt310, _wt210
@@ -75,8 +76,6 @@ class PowerMeter:
 
     def _probe_error(self, errors):
         """TODO"""
-
-        import textwrap
 
         wrapper = textwrap.TextWrapper(width=79)
 

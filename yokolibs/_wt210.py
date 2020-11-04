@@ -91,11 +91,11 @@ def _math_response_tweak(_, value):
     parts = value.split(";")
     if parts[0] == "ARITHMETIC":
         return parts[1].lower()
-    elif parts[1] == "A,1":
+    if parts[1] == "A,1":
         return "cfi"
-    elif parts[1] == "V,1":
+    if parts[1] == "V,1":
         return "cfv"
-    elif parts[1] == "W,1":
+    if parts[1] == "W,1":
         return "avw"
 
     raise Error("unknown power meter math function '%s'" % value)

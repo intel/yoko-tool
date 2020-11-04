@@ -24,7 +24,7 @@ import subprocess
 import pytest
 from yokolibs import PowerMeter, _config, _logging
 
-class CmdLineArgs(object):
+class CmdLineArgs():
     """A dummy command-line arguments class."""
     devnode = None
 
@@ -46,11 +46,11 @@ class YokotoolPowerMeter():
         """The 'command' method which ends up running the tool."""
 
         if cmd == "wait-data-update":
-            return
+            return None
 
         if cmd == "configure-data-items":
             self._data_items = arg
-            return
+            return None
 
         if cmd == "read-data":
             ycmd = ["read", "--count=1", ",".join(self._data_items)]
@@ -83,7 +83,6 @@ class YokotoolPowerMeter():
 
     def close(self):
         """Nothing to do on close."""
-        pass
 
     def __init__(self, **kwargs):
         """The constructuor."""
