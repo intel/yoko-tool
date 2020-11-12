@@ -587,10 +587,7 @@ def fetch_devspec():
     return None
 
 def main():
-    """
-    This is the program entry point. Here we parse the command line and execute a function
-    corresponding to the command user specified.
-    """
+    """The program entry point."""
 
     # Configure the logger.
     loglevel = logging.INFO
