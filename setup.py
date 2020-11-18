@@ -49,5 +49,13 @@ setup(
     install_requires=["pyserial"],
     long_description="""This package provides yokotool - a Linux command-line tool for controlling
                         Yokogawa power meters. There are also python modules providing the API for
-                        python programs."""
+                        python programs.""",
+    classifiers=[
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research"
+        "Topic :: System :: Hardware",
+        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+        "Programming Language :: Python :: 3 :: Only",
+        "Development Status :: 4 - Beta",
+    ],
 )
