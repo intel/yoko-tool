@@ -19,7 +19,7 @@ try:
     import ConfigParser as configparser
 except ImportError:
     import configparser
-from yokolibs._exceptions import Error
+from yokolibs.Exceptions import Error
 
 SYSTEM_CFG_FILE = "/etc/yokotool.conf"
 USER_CFG_FILE_NAME = ".yokotool.conf"

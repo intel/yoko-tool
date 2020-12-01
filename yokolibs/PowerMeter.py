@@ -24,7 +24,7 @@ from collections import OrderedDict
 from yokolibs import Transport, _wt310, _wt210
 from yokolibs._config import CONFIG_OPTIONS as _KWARGS
 # pylint: disable=unused-import
-from yokolibs._exceptions import Error, ErrorBadArgument, ErrorBadResponse
+from yokolibs.Exceptions import Error, ErrorBadArgument, ErrorBadResponse
 from yokolibs._yokobase import COMMANDS
 # pylint: enable=unused-import
 

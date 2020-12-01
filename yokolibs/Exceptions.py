@@ -8,7 +8,7 @@
 #
 # Author: Helia Correia <helia.correia@linux.intel.com>
 
-"""This module defines the exception types used by all of Yoko Tool's modules."""
+"""This module defines the exception types used in this project."""
 
 class Error(Exception):
     """Most of the error conditions of the project cause exceptions of this type."""
@@ -48,4 +48,4 @@ class ErrorBadResponse(Error):
         super(ErrorBadResponse, self).__init__(msg)
 
 class TransportError(Error):
-    """A class for all errors raised by Transport module."""
+    """A class for all errors raised by the 'Transport' module."""

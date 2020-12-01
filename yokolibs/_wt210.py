@@ -17,7 +17,7 @@ This module implements the Yokogawa WT210 power meter support.
 from __future__ import absolute_import, division, print_function
 import re
 from yokolibs import _yokobase
-from yokolibs._exceptions import Error, ErrorBadResponse
+from yokolibs.Exceptions import Error, ErrorBadResponse
 
 _MAX_DATA_ITEMS = 19
 

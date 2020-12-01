@@ -12,7 +12,7 @@
 Misc. helper functions.
 """
 
-from yokolibs._exceptions import Error
+from yokolibs.Exceptions import Error
 
 def is_int(value):
     """

@@ -22,7 +22,7 @@ import time
 import logging
 from collections import OrderedDict
 from yokolibs import Transport
-from yokolibs._exceptions import Error, ErrorBadArgument, ErrorBadResponse
+from yokolibs.Exceptions import Error, ErrorBadArgument, ErrorBadResponse
 
 # This makes sure all classes are the new-style classes by default.
 __metaclass__ = type # pylint: disable=invalid-name

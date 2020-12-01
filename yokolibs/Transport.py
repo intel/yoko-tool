@@ -21,7 +21,7 @@ import logging
 import textwrap
 from fcntl import ioctl
 
-from yokolibs._exceptions import Error, TransportError
+from yokolibs.Exceptions import Error, TransportError
 
 try:
     import serial

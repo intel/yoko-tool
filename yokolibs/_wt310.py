@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function
 import re
 from collections import OrderedDict
 from yokolibs import _yokobase
-from yokolibs._exceptions import Error
+from yokolibs.Exceptions import Error
 
 _MAX_DATA_ITEMS = 10
 _ELEMENTS_COUNT = 1
