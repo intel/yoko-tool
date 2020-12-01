@@ -60,9 +60,9 @@ def _process_config_file(cfgfile, secname, config):
 
         config[name] = val
 
-def iteratate_configs():
+def _iteratate_configs():
     """
-    Iterate over configuration files and yied the 'configparser' objects.
+    For every existing yokotool configuration file, build and yield the 'configparser' object.
     """
 
     user_cfgfile = os.path.join(os.path.expanduser("~"), USER_CFG_FILE_NAME)
@@ -72,7 +72,7 @@ def iteratate_configs():
                 cfgfile = configparser.ConfigParser()
                 cfgfile.read(path)
             except configparser.Error as err:
-                raise Error("failed to parse configuration file '%s':\n%s" % (path, err))
+                raise Error("faled to parse configuration file '%s':\n%s" % (path, err))
             cfgfile.path = path
             yield cfgfile
 
@@ -90,7 +90,7 @@ def process_config(secname=None, args=None):
 
     config = {}
     paths = []
-    for cfgfile in iteratate_configs():
+    for cfgfile in _iteratate_configs():
         paths.append(cfgfile.path)
         _process_config_file(cfgfile, secname, config)
 
@@ -112,6 +112,6 @@ def get_section_names():
     """Returns all section names found in all configuration files."""
 
     sections = set()
-    for cfgfile in iteratate_configs():
+    for cfgfile in _iteratate_configs():
         sections.update(cfgfile.sections())
     return list(sections)
