@@ -389,11 +389,11 @@ def get_command(args, pmeter):
         return
 
     if not args.name:
-        error_out("please, specify the property to get, use -h for help")
+        raise Error("please, specify the property to get, use -h for help")
 
     cmd = "get-%s" % args.name
     if cmd not in pmeter.commands:
-        error_out("unknown power meter property '%s'", args.name)
+        raise Error("unknown power meter property '%s'" % args.name)
     LOG.info(pmeter.command("get-%s" % args.name))
 
 def set_command(args, pmeter):
@@ -404,14 +404,14 @@ def set_command(args, pmeter):
         return
 
     if not args.name:
-        error_out("please, specify the property to set, use -h for help")
+        raise Error("please, specify the property to set, use -h for help")
 
     cmd = "set-%s" % args.name
     if not args.arg:
         LOG.info("Use:\n%s", pmeter.get_argument_help(cmd))
     else:
         if cmd not in pmeter.commands:
-            error_out("unknown power meter property '%s'", args.name)
+            raise Error("unknown power meter property '%s'" % (args.name))
         pmeter.command(cmd, args.arg)
     return
 
@@ -446,7 +446,7 @@ def read_command(args, pmeter):
         try:
             proc = subprocess.Popen(args.command)
         except OSError as err:
-            error_out("cannot run '%s':\n%s", " ".join(args.command), err)
+            raise Error("cannot run '%s':\n%s" % (" ".join(args.command), err))
         LOG.debug("started: %s", " ".join(args.command))
 
     # We keep the max. lengths of printed items in this dictionary in order to aling the output.
@@ -531,7 +531,7 @@ def integration_properties(args, pmeter):
            Helpers.is_int(args.value) and 0 <= int(args.value) <= 36000000:
             pmeter.command(args.prop["set-cmd"], args.value)
         else:
-            error_out("unacceptable argument '%s', use: %s", args.value, args_list)
+            raise Error("unacceptable argument '%s', use: %s" % (args.value, args_list))
 
 def calibrate_command(_, pmeter):
     """Implements the 'calibrate' command."""
@@ -605,7 +605,7 @@ def main():
         try:
             info_stream = open(args.outfile, "w+")
         except OSError as err:
-            error_out("cannot open the output file '%s':\n%s", args.outfile, err)
+            raise Error("cannot open the output file '%s':\n%s" % (args.outfile, err))
         _logging.setup_logger(LOG, loglevel, info_stream=info_stream)
 
     args.devnode = args.secname = None
@@ -619,10 +619,7 @@ def main():
             args.secname = devspec
             LOG.debug("command-line configuration section name: %s", devspec)
 
-    try:
-        config = _config.process_config(secname=args.secname, args=args)
-    except Error as err:
-        error_out(err)
+    config = _config.process_config(secname=args.secname, args=args)
 
     if not config.get("devnode"):
         msg = "the power meter device node name was not found.\n\nHint: use one of the three " \
@@ -630,16 +627,13 @@ def main():
               "configuration file section name as the first argument.\n3. just add the " \
               "'[default]' section to yokotool configuration file.\nRefer to the man page for " \
               "more details."
-        error_out(msg)
+        raise Error(msg)
 
     if not config.get("pmtype"):
         # Auto-detection is not 100% reliable, so print a warning.
         LOG.warning("power meter type was not specified, trying to auto-detect it")
 
-    try:
-        transport = Transport.Transport(**config)
-    except Error as err:
-        error_out(err)
+    transport = Transport.Transport(**config)
 
     try:
         pmeter = PowerMeter.PowerMeter(transport=transport, **config)
@@ -655,8 +649,6 @@ def main():
               "   B. handshaking disabled\n" \
               "   C. terminator is 'Cr+Lf'."
         error_out("%s\n%s", err, msg)
-    except Error as err:
-        error_out(err)
 
     if not config.get("pmtype"):
         LOG.warning("detected power meter type '%s': %s", pmeter.pmtype, pmeter.name)
