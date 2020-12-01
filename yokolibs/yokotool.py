@@ -33,6 +33,7 @@ except ImportError:
     argcomplete = None
 
 from yokolibs import Transport, PowerMeter, Helpers, _config, _logging
+from yokolibs.Exceptions import Error, TransportError
 
 VERSION = "2.2"
 
@@ -620,7 +621,7 @@ def main():
 
     try:
         config = _config.process_config(secname=args.secname, args=args)
-    except _config.Error as err:
+    except Error as err:
         error_out(err)
 
     if not config.get("devnode"):
@@ -637,12 +638,12 @@ def main():
 
     try:
         transport = Transport.Transport(**config)
-    except Transport.Error as err:
+    except Error as err:
         error_out(err)
 
     try:
         pmeter = PowerMeter.PowerMeter(transport=transport, **config)
-    except Transport.TransportError as err:
+    except TransportError as err:
         if transport.name != "serial":
             error_out(err)
         # In case of serial we want to be extra helpful.
@@ -654,7 +655,7 @@ def main():
               "   B. handshaking disabled\n" \
               "   C. terminator is 'Cr+Lf'."
         error_out("%s\n%s", err, msg)
-    except PowerMeter.Error as err:
+    except Error as err:
         error_out(err)
 
     if not config.get("pmtype"):
@@ -662,7 +663,7 @@ def main():
 
     try:
         args.func(args, pmeter)
-    except PowerMeter.Error as err:
+    except Error as err:
         error_out(err)
     except KeyboardInterrupt:
         LOG.info("Interrupted, exiting")
