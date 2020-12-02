@@ -17,12 +17,13 @@ This is a 'py.test' test for the PowerMeter module.
 
 from __future__ import absolute_import, division, print_function
 import os
+import sys
 import random
 import logging
 import subprocess
 
 import pytest
-from yokolibs import PowerMeter, Config, _logging
+from yokolibs import PowerMeter, Config, Logging
 
 class CmdLineArgs():
     """A dummy command-line arguments class."""
@@ -30,9 +31,8 @@ class CmdLineArgs():
 
 _LOG = logging.getLogger()
 try:
-    import sys
     _LOG_LEVEL = sys.argv[sys.argv.index("--loglevel") + 1].upper()
-    _logging.setup_logger(_LOG, getattr(logging, _LOG_LEVEL))
+    Logging.setup_logger(loglevel=getattr(Logging, _LOG_LEVEL))
 except ValueError:
     pass
 

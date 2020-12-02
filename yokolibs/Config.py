@@ -25,7 +25,7 @@ from yokolibs.Exceptions import Error
 SYSTEM_CFG_FILE = "/etc/yokotool.conf"
 USER_CFG_FILE_NAME = ".yokotool.conf"
 
-_LOG = logging.getLogger("main")
+_LOG = logging.getLogger()
 
 # The yokotool configuration options.
 CONFIG_OPTIONS = {

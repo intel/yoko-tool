@@ -32,7 +32,7 @@ try:
 except ImportError:
     argcomplete = None
 
-from yokolibs import Transport, PowerMeter, Helpers, Config, _logging
+from yokolibs import Transport, PowerMeter, Helpers, Config, Logging
 from yokolibs.Exceptions import Error, TransportError
 
 VERSION = "2.2"
@@ -104,11 +104,6 @@ INTEGRATION_PROPERTIES = (
         "descr"    : "Get or set an integration timer value.",
     },
 )
-
-def error_out(msgformat, *args):
-    """Print an error message and terminate program execution."""
-    LOG.error(msgformat, *args)
-    raise SystemExit(1)
 
 class ArgsParser(argparse.ArgumentParser):
     """
@@ -261,10 +256,9 @@ def parse_arguments():
 
     # Create a parser for the 'get' command.
     text = "Get a property."
-    list_opt_str = LOG.esc_bright_green + "--list" + LOG.esc_end
     descr = """Get a power meter property like the voltage range, etc. Note, there are more
-               properties than listed here, use %s to get all the available properties as well
-               as the possible property values.""" % list_opt_str
+               properties than listed here, use '--list' to get all the available properties as well
+               as the possible property values."""
     pars1 = subpars.add_parser("get", help=text, description=descr)
     subpars1 = pars1.add_subparsers(title="properties", metavar="")
     subpars1.required = True
@@ -289,8 +283,8 @@ def parse_arguments():
     # Create a parser for the 'set' command.
     text = "Set a property."
     descr = """Set a power meter property like the voltage range, etc. Note, there are more
-               properties than listed here, use %s to get all the properties that can be change
-               along with their possible values.""" % list_opt_str
+               properties than listed here, use '--list' to get all the properties that can be
+               change along with their possible values."""
     pars1 = subpars.add_parser("set", help=text, description=descr)
     subpars1 = pars1.add_subparsers(title="properties", metavar="")
     subpars1.required = True
@@ -367,8 +361,7 @@ def info_command(_, pmeter):
         if not cmd.startswith("get-"):
             continue
         result = pmeter.command(cmd)
-        value = LOG.esc_bright_white + "%s" % result + LOG.esc_end
-        LOG.info("%s: %s", info["property-descr"].capitalize(), value)
+        LOG.info("%s: %s", info["property-descr"].capitalize(), result)
 
 def _print_properties(pmeter, pfx):
     """Print available properties with the 'pfx' prefix."""
@@ -593,23 +586,19 @@ def fetch_devspec():
 def main():
     """The program entry point."""
 
-    # Configure the logger.
-    loglevel = logging.INFO
-    if "-d" in sys.argv:
-        loglevel = logging.DEBUG
-    _logging.setup_logger(LOG, loglevel)
-
     devspec = fetch_devspec()
     LOG.debug("command-line devspec: %s", devspec)
     args = parse_arguments()
 
-    # Reconfigure the logger if file output was requested.
+    # Configure the logger.
+    info_stream = sys.stdout
     if args.outfile:
         try:
             info_stream = open(args.outfile, "w+")
         except OSError as err:
             raise Error("cannot open the output file '%s':\n%s" % (args.outfile, err))
-        _logging.setup_logger(LOG, loglevel, info_stream=info_stream)
+
+    Logging.setup_logger(prefix="yokotool", info_stream=info_stream)
 
     args.devnode = args.secname = None
     if devspec:
@@ -642,7 +631,7 @@ def main():
         pmeter = PowerMeter.PowerMeter(transport=transport, **config)
     except TransportError as err:
         if transport.name != "serial":
-            error_out(err)
+            Logging.error_out(err)
         # In case of serial we want to be extra helpful.
         msg = "Here are few seral interface troubleshooting hints.\n" \
               "1. You must use a Null modem cable.\n" \
@@ -651,7 +640,7 @@ def main():
               "   A. 1 start bit, 8 data bits, no parity\n" \
               "   B. handshaking disabled\n" \
               "   C. terminator is 'Cr+Lf'."
-        error_out("%s\n%s", err, msg)
+        Logging.error_out("%s\n%s", err, msg)
 
     if not config.get("pmtype"):
         LOG.warning("detected power meter type '%s': %s", pmeter.pmtype, pmeter.name)
@@ -659,7 +648,7 @@ def main():
     try:
         args.func(args, pmeter)
     except Error as err:
-        error_out(err)
+        Logging.error_out(err)
     except KeyboardInterrupt:
         LOG.info("Interrupted, exiting")
 
