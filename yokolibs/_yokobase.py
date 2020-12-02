@@ -1041,6 +1041,32 @@ class YokoBase():
 
         return self._command(cmd, arg)
 
+    def reset(self, configure=True):
+        """
+        Reset the power meter and if 'configure' is 'True', also configure with reasonable defaults.
+        """
+
+        # Reset to factory settings.
+        self.command("clear")
+        self.command("factory-reset")
+        if not configure:
+            return
+
+        # Set crest factor to 3 for better measurement precision.
+        self.command("set-crest-factor", "3")
+        # We are measuring AC, so need the RMS mode.
+        self.command("set-measurement-mode", "rms")
+        # Autmatically find the suitable voltage and current ranges.
+        self.command("set-voltage-auto-range", "on")
+        self.command("set-current-auto-range", "on")
+        # Set the measurement interval to 1 second.
+        self.command("set-interval", 1)
+        # Disable line filer to inclue all the frequencies into the measurements.
+        self.command("set-line-filter", "off")
+        # Enable the frequency filter. It only affects frequency measurements and generally
+        # recommended to be enabled.
+        self.command("set-freq-filter", "on")
+
     def _init_pmeter(self):
         """Initialize the power meter."""
 
