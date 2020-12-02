@@ -32,7 +32,7 @@ try:
 except ImportError:
     argcomplete = None
 
-from yokolibs import Transport, PowerMeter, Helpers, _config, _logging
+from yokolibs import Transport, PowerMeter, Helpers, Config, _logging
 from yokolibs.Exceptions import Error, TransportError
 
 VERSION = "2.2"
@@ -205,7 +205,7 @@ def parse_arguments():
 
     if "_ARGCOMPLETE" in os.environ:
         text = "The power meter device node specification."
-        pars.add_argument("devspec", help=text, choices=_config.get_section_names())
+        pars.add_argument("devspec", help=text, choices=Config.get_section_names())
 
     text = "Print version and exit."
     pars.add_argument("--version", action="version", help=text, version=VERSION)
@@ -619,7 +619,7 @@ def main():
             args.secname = devspec
             LOG.debug("command-line configuration section name: %s", devspec)
 
-    config = _config.parse_config_files(secname=args.secname, overrides=args)
+    config = Config.parse_config_files(secname=args.secname, overrides=args)
 
     if not config.get("devnode"):
         msg = "the power meter device node name was not found.\n\nHint: use one of the three " \

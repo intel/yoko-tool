@@ -22,7 +22,7 @@ import logging
 import subprocess
 
 import pytest
-from yokolibs import PowerMeter, _config, _logging
+from yokolibs import PowerMeter, Config, _logging
 
 class CmdLineArgs():
     """A dummy command-line arguments class."""
@@ -136,7 +136,7 @@ def pmeter(devspec, request):
     else:
         secname = devspec
 
-    config = _config.parse_config_files(secname=secname, overrides=args)
+    config = Config.parse_config_files(secname=secname, overrides=args)
     pmeter = request.param(**config)
     prepare_pmeter(pmeter)
     yield pmeter
