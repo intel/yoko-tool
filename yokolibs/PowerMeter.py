@@ -129,6 +129,10 @@ class PowerMeter:
             if not self._pmeter:
                 self._probe_error(errors)
 
+    def __del__(self):
+        """The class destructor."""
+        self.close()
+
     def close(self):
         """Close the communication interface with the power meter."""
 

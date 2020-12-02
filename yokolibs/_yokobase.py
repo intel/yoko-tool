@@ -1089,6 +1089,10 @@ class YokoBase():
         # Messages and actions in case power meter reports and error.
         self._errors_map = None
 
+    def __del__(self):
+        """The class destructor."""
+        self.close()
+
     def close(self):
         """Close the communication interface with the power meter."""
 
