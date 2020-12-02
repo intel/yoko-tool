@@ -138,7 +138,7 @@ class _USBTMC(_TransportBase):
     def close(self):
         """Close the transport object and free the resources."""
 
-        if self._fd:
+        if getattr(self, "_fd", None):
             os.close(self._fd)
             self._fd = None
 
@@ -205,7 +205,7 @@ class _Serial(_TransportBase):
     def close(self):
         """Close the power meter transport and free the resources."""
 
-        if self._ser:
+        if getattr(self, "_ser", None):
             self._ser.close()
             self._ser = None
 

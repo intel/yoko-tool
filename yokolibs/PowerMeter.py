@@ -56,7 +56,7 @@ class PowerMeter:
     def close(self):
         """Close the communication interface with the power meter."""
 
-        if self._pmeter:
+        if getattr(self, "_pmeter", None):
             self._pmeter.close()
             self._pmeter = None
 

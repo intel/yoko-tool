@@ -1092,6 +1092,6 @@ class YokoBase():
     def close(self):
         """Close the communication interface with the power meter."""
 
-        if self._transport:
+        if getattr(self, "_transport", None):
             self._transport.close()
             self._transport = None
