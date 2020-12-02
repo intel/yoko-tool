@@ -135,13 +135,6 @@ class _USBTMC(_TransportBase):
         self._dbg("received: %s" % data)
         return data
 
-    def close(self):
-        """Close the transport object and free the resources."""
-
-        if getattr(self, "_fd", None):
-            os.close(self._fd)
-            self._fd = None
-
     def __init__(self, devnode, **kwargs):
         """
         The class constructor. The 'devnode' argument is the USBTMC device node to use as
@@ -163,6 +156,13 @@ class _USBTMC(_TransportBase):
     def __del__(self):
         """The class destructor."""
         self.close()
+
+    def close(self):
+        """Close the transport object and free the resources."""
+
+        if getattr(self, "_fd", None):
+            os.close(self._fd)
+            self._fd = None
 
 class _Serial(_TransportBase):
     """The RS-232 device transport."""
@@ -202,13 +202,6 @@ class _Serial(_TransportBase):
         self._dbg("received: %s" % data)
         return data
 
-    def close(self):
-        """Close the power meter transport and free the resources."""
-
-        if getattr(self, "_ser", None):
-            self._ser.close()
-            self._ser = None
-
     def __init__(self, devnode, **kwargs):
         """
         The class constructor. The 'devnode' argument is the serial device node to use as
@@ -244,6 +237,13 @@ class _Serial(_TransportBase):
     def __del__(self):
         """The class destructor."""
         self.close()
+
+    def close(self):
+        """Close the power meter transport and free the resources."""
+
+        if getattr(self, "_ser", None):
+            self._ser.close()
+            self._ser = None
 
 class Transport(): # pylint: disable=too-few-public-methods
     """

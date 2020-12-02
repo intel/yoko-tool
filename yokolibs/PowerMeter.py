@@ -53,13 +53,6 @@ class PowerMeter:
 
         raise Error("no help text for '%s'" % cmd)
 
-    def close(self):
-        """Close the communication interface with the power meter."""
-
-        if getattr(self, "_pmeter", None):
-            self._pmeter.close()
-            self._pmeter = None
-
     def command(self, cmd, arg=None):
         """
         Execute the power meter command 'cmd' with argument 'arg'. Return the command response or
@@ -135,6 +128,13 @@ class PowerMeter:
 
             if not self._pmeter:
                 self._probe_error(errors)
+
+    def close(self):
+        """Close the communication interface with the power meter."""
+
+        if getattr(self, "_pmeter", None):
+            self._pmeter.close()
+            self._pmeter = None
 
     def __getattr__(self, name):
         """
