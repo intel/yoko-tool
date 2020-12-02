@@ -25,6 +25,17 @@ def is_int(value):
         return False
     return True
 
+def is_dict(obj):
+    """
+    Return 'True' if 'obj' is a dictionary (works for 'OrderedDicts' too) and 'False' otherwise.
+    """
+
+    try:
+        obj = obj.keys()
+    except AttributeError:
+        return False
+    return True
+
 def parse_duration(htime, default_unit="s"):
     """
     This function does the opposite to what human_time does - parses the human time string and

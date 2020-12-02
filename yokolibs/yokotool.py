@@ -619,7 +619,7 @@ def main():
             args.secname = devspec
             LOG.debug("command-line configuration section name: %s", devspec)
 
-    config = _config.process_config(secname=args.secname, args=args)
+    config = _config.process_config(secname=args.secname, overrides=args)
 
     if not config.get("devnode"):
         msg = "the power meter device node name was not found.\n\nHint: use one of the three " \

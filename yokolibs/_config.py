@@ -19,6 +19,7 @@ try:
     import ConfigParser as configparser
 except ImportError:
     import configparser
+from yokolibs import Helpers
 from yokolibs.Exceptions import Error
 
 SYSTEM_CFG_FILE = "/etc/yokotool.conf"
@@ -76,16 +77,22 @@ def _iteratate_configs():
             cfgfile.path = path
             yield cfgfile
 
-def process_config(secname=None, args=None):
+def process_config(secname=None, overrides=None):
     """
-    Load and process the configuration files. First the '/etc/yokotool.conf' file is processed, then
-    the '$HOME/.yokotool.conf' file. The optional 'secname' argument specifies the section of the
-    configuration files to process. If the argument is not provided, the "default" section is
+    Load and process yokotool configuration files. First the '/etc/yokotool.conf' file is processed,
+    then the '$HOME/.yokotool.conf' file. The optional 'secname' argument specifies the section of
+    the configuration files to process. If the argument is not provided, the "default" section is
     processed instead.
 
-    Once the configuration files are process the (supposedly) command-line arguments 'args' are
-    merged into the resulting configuration dictionary. In case of a conflict the command-line
-    arguments win. The configuration dictionary is returned at the end.
+    The 'overrides' argument, if provided, may include yokotool configuration options that will
+    override the options from the configuration files. Here is an example.
+
+    Configuration file: devnode=/dev/abc
+    Overrides: devnode=/dev/xyz
+
+    The resulting dictionary will contain 'devnode=/dev/xyz'. The 'overrides' argument may both be
+    dictionary (e.g., include 'overrides["devnode"]') or any other object including configuration
+    options as attributes (e.g., 'overrides.devnode').
     """
 
     config = {}
@@ -98,10 +105,13 @@ def process_config(secname=None, args=None):
         raise Error("section '%s' was not found in any for these configuration files:\n* %s" \
                     % (secname, "\n* ".join(paths)))
 
-    if args:
+    if overrides:
         for name in CONFIG_OPTIONS:
-            if hasattr(args, name) and getattr(args, name) is not None:
-                config[name] = getattr(args, name)
+            val = getattr(overrides, name, None)
+            if not val and Helpers.is_dict(overrides):
+                val = overrides.get(name)
+            if val:
+                config[name] = val
 
     if _LOG.getEffectiveLevel() == logging.DEBUG:
         _LOG.debug("the final configuration:\n%s", pprint.pformat(config, indent=4))
