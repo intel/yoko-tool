@@ -351,6 +351,10 @@ def parse_arguments():
     descr = "Reset the power meter to factory settings."
     pars1 = subpars.add_parser("factory-reset", help=text, description=descr)
     pars1.set_defaults(func=factory_reset_command)
+    text = """In addition to resetting the power meter, configure it with generally reasonable
+              default settings. This way the initial power meter configuration will be similar
+              across various Yokogawa power meter flavors."""
+    pars1.add_argument("--configure", action="store_true", help=text)
 
     if argcomplete:
         argcomplete.autocomplete(pars)
@@ -540,11 +544,10 @@ def calibrate_command(_, pmeter):
     result = pmeter.command("calibrate")
     LOG.info(result)
 
-def factory_reset_command(_, pmeter):
+def factory_reset_command(args, pmeter):
     """Implements the 'factory-reset' command."""
 
-    pmeter.command("clear")
-    pmeter.command("factory-reset")
+    pmeter.reset(configure=args.configure)
 
 def fetch_devspec():
     """
