@@ -34,10 +34,10 @@ CONFIG_OPTIONS = {
     "pmtype"   : {"type" : str},
 }
 
-def _process_config_file(cfgfile, secname, config):
+def _parse_config_file(cfgfile, secname, config):
     """
-    Process a configuration file 'cfcfile' and update the 'config' dictionary with the contents of
-    the 'secname' section.
+    Parse a yokotool configuration file 'cfcfile' and update the 'config' dictionary with the
+    contents of the 'secname' section of the conriguration file.
     """
 
     if not secname:
@@ -77,12 +77,12 @@ def _iteratate_configs():
             cfgfile.path = path
             yield cfgfile
 
-def process_config(secname=None, overrides=None):
+def parse_config_files(secname=None, overrides=None):
     """
-    Load and process yokotool configuration files. First the '/etc/yokotool.conf' file is processed,
-    then the '$HOME/.yokotool.conf' file. The optional 'secname' argument specifies the section of
-    the configuration files to process. If the argument is not provided, the "default" section is
-    processed instead.
+    Parse yokotool configuration files and return the configuration dictionary. First the
+    '/etc/yokotool.conf' file is parsed, then the '$HOME/.yokotool.conf' file. The optional
+    'secname' argument specifies the section of the configuration files to parse. If the argument is
+    not provided, the "default" section is parsed instead.
 
     The 'overrides' argument, if provided, may include yokotool configuration options that will
     override the options from the configuration files. Here is an example.
@@ -99,7 +99,7 @@ def process_config(secname=None, overrides=None):
     paths = []
     for cfgfile in _iteratate_configs():
         paths.append(cfgfile.path)
-        _process_config_file(cfgfile, secname, config)
+        _parse_config_file(cfgfile, secname, config)
 
     if not config and paths and secname:
         raise Error("section '%s' was not found in any for these configuration files:\n* %s" \

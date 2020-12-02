@@ -136,7 +136,7 @@ def pmeter(devspec, request):
     else:
         secname = devspec
 
-    config = _config.process_config(secname=secname, overrides=args)
+    config = _config.parse_config_files(secname=secname, overrides=args)
     pmeter = request.param(**config)
     prepare_pmeter(pmeter)
     yield pmeter
