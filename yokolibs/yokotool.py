@@ -36,6 +36,7 @@ from yokolibs import Transport, PowerMeter, Helpers, Config, Logging
 from yokolibs.Exceptions import Error, TransportError
 
 VERSION = "2.2"
+OWN_NAME = "yokotool"
 
 LOG = logging.getLogger()
 
@@ -196,7 +197,7 @@ def parse_arguments():
     methods of specifying the device: 1 - device node as the first argument, 2 - configuration file
     section name as the first argument, 3 - just add the '[default]' section to the configuration
     file. Refer to the online documentation for details."""
-    pars = ArgsParser(description=text, prog='yokotool')
+    pars = ArgsParser(description=text, prog=OWN_NAME)
 
     if "_ARGCOMPLETE" in os.environ:
         text = "The power meter device node specification."
@@ -205,8 +206,9 @@ def parse_arguments():
     text = "Print version and exit."
     pars.add_argument("--version", action="version", help=text, version=VERSION)
 
-    text = """The power meter type. Even though yokotool tries to auto-detect the power meter type,
-              it is recommended to specify it with this option or in the configuration file."""
+    text = f"""The power meter type. Even though {OWN_NAME} tries to auto-detect the power meter
+               type, it is recommended to specify it with this option or in the configuration file.
+               """
     pars.add_argument("--pmtype", help=text)
 
     text = "Baud rate (RS-232 connection only)."
@@ -598,7 +600,7 @@ def main():
         except OSError as err:
             raise Error("cannot open the output file '%s':\n%s" % (args.outfile, err))
 
-    Logging.setup_logger(prefix="yokotool", info_stream=info_stream)
+    Logging.setup_logger(prefix=OWN_NAME, info_stream=info_stream)
 
     args.devnode = args.secname = None
     if devspec:
@@ -614,11 +616,11 @@ def main():
     config = Config.parse_config_files(secname=args.secname, overrides=args)
 
     if not config.get("devnode"):
-        msg = "the power meter device node name was not found.\n\nHint: use one of the three " \
-              "methods of specifying the device.\n1. device node name as the first argument.\n2. " \
-              "configuration file section name as the first argument.\n3. just add the " \
-              "'[default]' section to yokotool configuration file.\nRefer to the man page for " \
-              "more details."
+        msg = f"the power meter device node name was not found.\n\nHint: use one of the three "\
+              f"methods of specifying the device.\n1. device node name as the first argument.\n" \
+              f"2. configuration file section name as the first argument.\n3. just add the " \
+              f"'[default]' section to {OWN_NAME} configuration file.\nRefer to the man page for " \
+              f"more details."
         raise Error(msg)
 
     if not config.get("pmtype"):
