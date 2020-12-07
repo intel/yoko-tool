@@ -217,7 +217,9 @@ class _Serial(_TransportBase):
         except serial.SerialException as err:
             raise TransportError("cannot initialize the serial device '%s':\n%s" % (devnode, err))
 
-        self._ser.port = devnode
+        # The 'devnode' may be a 'pathlib.Path()' object, but the 'serial' module chokes on
+        # non-strings. Hence the case.
+        self._ser.port = str(devnode)
         self._ser.timeout = self._ser.write_timeout = 5
         if "baudrate" in kwargs and kwargs["baudrate"] is not None:
             bauds = [1200, 2400, 4800, 9600, 19200, 38400, 57600]
