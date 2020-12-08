@@ -532,6 +532,9 @@ _TWEAKS = {
     "get-interval" : {
         "response-tweaks" : (_float_to_str_tweak,),
     },
+    "set-interval" : {
+        "input-tweaks" : (_float_to_str_tweak,),
+    },
     "calibrate" : {
         "response-tweaks" : (_success_failure_tweak,),
     },
@@ -922,10 +925,12 @@ class YokoBase():
             # 'arg' may be a list, in which case we check every element of the list.
             if isinstance(arg, (list, tuple)):
                 for elt in arg:
-                    if elt not in choices:
+                    tweaked_elt = self._apply_input_tweaks(cmd, elt)
+                    if tweaked_elt not in choices:
                         raise ErrorBadArgument(cmd, elt)
             else:
-                if arg not in choices:
+                tweaked_arg = self._apply_input_tweaks(cmd, arg)
+                if tweaked_arg not in choices:
                     raise ErrorBadArgument(cmd, arg)
 
         if "verify-arg" in self._commands[cmd]:
