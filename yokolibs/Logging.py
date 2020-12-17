@@ -165,7 +165,7 @@ class _MyFilter(logging.Filter):
         return False
 
 def setup_logger(prefix=None, loglevel=None, colored=None, info_stream=sys.stdout,
-                 error_stream=sys.stderr):
+                 error_stream=sys.stderr, info_logfile=None, error_logfile=None):
     """
     Setup and return a logger.
       * prefix - usually the program name, but can be any prefix that will be used for "WARNING",
@@ -175,15 +175,18 @@ def setup_logger(prefix=None, loglevel=None, colored=None, info_stream=sys.stdou
       * colored - whether the output should be colored or not. By default this function
                   automatically figures out the coloring by checking if the output file descriptors
                   are TTYs and whether the '--force-color" command line option is used.
-      * info_stream - stream where logs with "INFO" level will be directed at. Default is
+      * info_stream - stream where messages with "INFO" level will be directed to. Default is
                       'sys.stdout'.
       * error_stream - same as 'info_stream', but will be used for all other logging levels. Default
                        is 'sys.stderr'.
+      * info_logfile - path to the fiile where messages with "INFO" level will be directed to. If
+                       both 'info_stream' and 'info_logfile' are provided, messages will go the
+                       both.
+      * error_logfile - same as 'info_logfile", but  will be used for all other logging levels.
     """
 
     if prefix:
         prefix = f"{prefix}: "
-
 
     if not loglevel:
         # Change log level names.
@@ -200,7 +203,7 @@ def setup_logger(prefix=None, loglevel=None, colored=None, info_stream=sys.stdou
         elif "--force-color" in sys.argv:
             colored = True
         else:
-            colored = sys.stdout.isatty() and sys.stderr.isatty()
+            colored = info_stream.isatty() and error_stream.isatty()
 
     logger = logging.getLogger()
     logger.colored = colored
@@ -214,6 +217,10 @@ def setup_logger(prefix=None, loglevel=None, colored=None, info_stream=sys.stdou
         colors[ERROR] = colors[CRITICAL] = colorama.Fore.RED + colorama.Style.BRIGHT
 
     formatter = _MyFormatter(prefix=prefix, colors=colors)
+    if colored:
+        nocolor_formatter = _MyFormatter(prefix=prefix, colors={})
+    else:
+        nocolor_formatter = formatter
 
     # Remove existing handlers.
     logger.handlers = []
@@ -227,6 +234,18 @@ def setup_logger(prefix=None, loglevel=None, colored=None, info_stream=sys.stdou
     where.setFormatter(formatter)
     where.addFilter(_MyFilter([INFO]))
     logger.addHandler(where)
+
+    if error_logfile:
+        where = logging.FileHandler(error_logfile)
+        where.setFormatter(nocolor_formatter)
+        where.addFilter(_MyFilter([DEBUG, WARNING, NOTICE, ERROR, ERRINFO, CRITICAL]))
+        logger.addHandler(where)
+
+    if info_logfile:
+        where = logging.FileHandler(info_logfile)
+        where.setFormatter(nocolor_formatter)
+        where.addFilter(_MyFilter([INFO]))
+        logger.addHandler(where)
 
     logger.notice = types.MethodType(_notice, logger)
     logger.error_out = types.MethodType(_error_out, logger)
