@@ -155,7 +155,11 @@ class _USBTMC(_TransportBase):
 
     def __del__(self):
         """The class destructor."""
-        self.close()
+
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def close(self):
         """Close the transport object and free the resources."""

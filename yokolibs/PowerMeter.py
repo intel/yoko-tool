@@ -131,7 +131,11 @@ class PowerMeter:
 
     def __del__(self):
         """The class destructor."""
-        self.close()
+
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def close(self):
         """Close the communication interface with the power meter."""
