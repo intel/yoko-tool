@@ -955,10 +955,10 @@ class YokoBase():
 
         try:
             code, rawmsg = response.split(',', 1)
+            code = int(code)
         except ValueError as err:
             raise ErrorBadResponse(raw_cmd=status_cmd, response=response)
 
-        code = int(code)
         if code == 0:
             return None
 
