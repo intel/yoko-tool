@@ -38,10 +38,11 @@ tool comes with the "yokolibs.PowerMeter" module which can be used from Python s
 
 Project web page: [https://01.org/yoko-tool](https://01.org/yoko-tool).
 
-# Authors
+# Authors and contributors
 
 * Artem Bityutskiy <dedekind1@gmail.com> - original author, project maintainer.
-* Helia Correia <hcopro@gmail.com>  - project maintainer.
+* Antti Laakso Antti Laakso <antti.laakso@linux.intel.com> - contributor.
+* Helia Correia <hcopro@gmail.com> - contributor.
 
 # What is supported
 
