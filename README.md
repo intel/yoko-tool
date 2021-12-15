@@ -376,11 +376,20 @@ include to the bug report.
 
 # Tab completions
 
-Yokotool supports tab completions, but they will only work if you installed yokotool with
-`pip`. Completions will not work if you use yokotool directly from the source codes.
+Yokotool has tab completions support, but this will only work if you have certain environment
+variables defined. The following command will do it:
 
-Yokotool tab completions are based on the `argcomplete` Python module. You can install
-it using `pip` or by installing the corresponding OS package.  In Fedora, use:
+```
+eval $(register-python-argcomplete yokotool)
+```
+
+You can put this line to your '.bashrc' file in order to have yokotool tab completions enabled by
+default.
+
+Yokotool tab completions are based on the `argcomplete` Python project. If you
+installed yokotool with `pip', the module module has been installed as well (as
+a dependency). Otherwise you can install it separately using `pip` or by
+installing the corresponding OS package.  In Fedora, use:
 
 ```
 $ dnf install python-argcomplete  # Python 2.7
@@ -392,13 +401,3 @@ In Ubuntu, use:
 ```
 $ apt-get install python-argcomplete  # Python 2.7
 $ apt-get install python3-argcomplete # Python 3.x
-```
-
-Once you have `argcomplete` installed in your system, run
-
-```
-eval "$(register-python-argcomplete yokotool)"
-```
-
-and verify that tab completions work. Add this command to your `.bashrc` to have yokotool tab
-completions enabled by default.

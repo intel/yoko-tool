@@ -46,7 +46,7 @@ setup(
                 ("share/yoko-tool", ["yokotool.conf"])],
     packages=find_packages(exclude=["test*"]),
     license='GPLv2',
-    install_requires=["pyserial", "colorama"],
+    install_requires=["pyserial", "colorama", "argcomplete"],
     long_description="""This package provides yokotool - a Linux command-line tool for controlling
                         Yokogawa power meters. There are also python modules providing the API for
                         python programs.""",
