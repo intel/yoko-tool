@@ -633,7 +633,7 @@ def main():
         pmeter = PowerMeter.PowerMeter(transport=transport, **config)
     except TransportError as err:
         if transport.name != "serial":
-            Logging.error_out(err)
+            LOG.error_out(err)
         # In case of serial we want to be extra helpful.
         msg = "Here are few seral interface troubleshooting hints.\n" \
               "1. You must use a Null modem cable.\n" \
@@ -642,7 +642,7 @@ def main():
               "   A. 1 start bit, 8 data bits, no parity\n" \
               "   B. handshaking disabled\n" \
               "   C. terminator is 'Cr+Lf'."
-        Logging.error_out("%s\n%s", err, msg)
+        LOG.error_out("%s\n%s", err, msg)
 
     if not config.get("pmtype"):
         LOG.warning("detected power meter type '%s': %s", pmeter.pmtype, pmeter.name)
@@ -650,7 +650,7 @@ def main():
     try:
         args.func(args, pmeter)
     except Error as err:
-        Logging.error_out(err)
+        LOG.error_out(err)
     except KeyboardInterrupt:
         LOG.info("Interrupted, exiting")
 
