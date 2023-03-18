@@ -29,6 +29,10 @@ __metaclass__ = type # pylint: disable=invalid-name
 
 _LOG = logging.getLogger("_yokobase")
 
+# Special return value from a command function idicating that raw command should be executed upon
+# function exit.
+_CMD_CONTINUE = object
+
 # The data items supported by all power meters.
 _DATA_ITEMS = OrderedDict([
     ("V", "voltage"),
@@ -737,6 +741,9 @@ class YokoBase():
         self._add_command_func("set-voltage-range", self._set_range_cmd)
         self._add_command_func("start-integration", self._start_integration_cmd)
 
+        if hasattr(self._transport, "set_timeout"):
+            self._add_command_func("set-interval", self._set_interval_timeout_cmd)
+
         for cmd, info in self._commands.items():
             if cmd.startswith("get-") or (info["raw-cmd"] and info["raw-cmd"].endswith("?")):
                 info["has-response"] = True
@@ -848,6 +855,15 @@ class YokoBase():
         self._command("get-eesr", check_status=False)
         # Wait for the event.
         self._command("eesr-wait-upd", check_status=False)
+
+    def _set_interval_timeout_cmd(self, _, arg):
+        """Make sure transport device's timeout is larger than the interval."""
+
+        # Set the timeout to 2x interval length as a margin of safty.
+        timeout = int(float(arg) * 1000) * 2
+        self._transport.set_timeout(timeout)
+
+        return _CMD_CONTINUE
 
     def _get_range_cmd(self, cmd, _):
         """Implements the 'get-current-range' and 'get-voltage-range' commands."""
@@ -989,7 +1005,9 @@ class YokoBase():
         _LOG.debug(_cmd_to_str(cmd, arg))
 
         if func and "func" in self._commands[cmd]:
-            return self._commands[cmd]["func"](cmd, arg)
+            retval = self._commands[cmd]["func"](cmd, arg)
+            if retval is not _CMD_CONTINUE:
+                return retval
 
         if arg is not None:
             arg = self._apply_input_tweaks(cmd, arg)

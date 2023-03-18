@@ -17,6 +17,7 @@ from __future__ import absolute_import, division, print_function
 import os
 import stat
 import errno
+import ctypes
 import logging
 import textwrap
 from fcntl import ioctl
@@ -56,20 +57,23 @@ class _TransportBase():
     def writeline(self, data):
         """Abstract method to be implemented in child classes."""
 
+    def set_timeout(self, timeout):
+        """Abstract method to be implemented in child classes."""
+
     def queryline(self, command):
         """Write 'command' and return the read response."""
 
         self.writeline(command)
         return self.readline()
 
-    def ioctl(self, fobj, operation):
+    def ioctl(self, fobj, operation, arg=0):
         """
         Execute specific IOCTL to ensure that we are dealing with the expected type of character
         device.
         """
 
         try:
-            ioctl(fobj, operation)
+            ioctl(fobj, operation, arg)
         except IOError as err:
             if err.errno == errno.ENOTTY:
                 raise Error("'%s' is not a '%s' device" % (self.devnode, self.name))
@@ -103,6 +107,8 @@ class _USBTMC(_TransportBase):
 
     # IOCTL number for clearing the device's input and output buffers.
     _clear_ioctl = 0x5b02
+    # IOCTL number for setting USB TMC device timeout.
+    _set_timeout_ioctl = 0x40045b0a
 
     def writeline(self, data):
         """Write a line to the device."""
@@ -134,6 +140,12 @@ class _USBTMC(_TransportBase):
         data = data.strip()
         self._dbg("received: %s" % data)
         return data
+
+    def set_timeout(self, timeout):
+        """Set USB TMC device timeout to 'timeout' milliseconds."""
+
+        timeout = ctypes.c_uint32(timeout)
+        super(_USBTMC, self).ioctl(self._fd, self._set_timeout_ioctl, arg=timeout)
 
     def __init__(self, devnode, **kwargs):
         """
