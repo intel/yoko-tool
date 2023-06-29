@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2013-2020 Intel Corporation
+# Copyright (C) 2013-2023 Intel Corporation
 # SPDX-License-Identifier: GPL-2.0-only
 #
 # -*- coding: utf-8 -*-
@@ -33,7 +33,7 @@ except ImportError:
     argcomplete = None
 
 from yokolibs import Transport, PowerMeter, Helpers, Config, Logging
-from yokolibs.Exceptions import Error, TransportError
+from yokolibs.Exceptions import Error, ErrorDeviceNotFound, TransportError
 
 VERSION = "2.2"
 OWN_NAME = "yokotool"
@@ -613,7 +613,10 @@ def main():
             args.secname = devspec
             LOG.debug("command-line configuration section name: %s", devspec)
 
-    config = Config.parse_config_files(secname=args.secname, overrides=args)
+    try:
+        config = Config.parse_config_files(secname=args.secname, overrides=args)
+    except ErrorDeviceNotFound as err:
+        raise Error("no power meter configured for node '%s'" % args.secname) from err
 
     if not config.get("devnode"):
         msg = f"the power meter device node name was not found.\n\nHint: use one of the three "\

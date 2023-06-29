@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2016-2020 Intel Corporation
+# Copyright (C) 2016-2023 Intel Corporation
 # SPDX-License-Identifier: GPL-2.0-only
 #
 # -*- coding: utf-8 -*-
@@ -46,6 +46,19 @@ class ErrorBadResponse(Error):
         if not msg and raw_cmd and response:
             msg = "unexpected power meter response '%s' to the '%s' command" % (response, raw_cmd)
         super(ErrorBadResponse, self).__init__(msg)
+
+class ErrorDeviceNotFound(Error):
+    """This exception is thrown when the requested device doesn't exist in any config file."""
+
+    def __init__(self, devnode=None, paths=None, msg=None):
+        """The class constructor."""
+
+        if not msg and devnode and paths:
+            msg = "device '%s' was not found in any of these configuration files:\n* %s" \
+                    % (devnode, "\n* ".join(paths))
+        super(ErrorDeviceNotFound, self).__init__(msg)
+        self.devnode = devnode
+        self.paths = paths
 
 class TransportError(Error):
     """A class for all errors raised by the 'Transport' module."""

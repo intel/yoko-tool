@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2013-2020 Intel Corporation
+# Copyright (C) 2013-2023 Intel Corporation
 # SPDX-License-Identifier: GPL-2.0-only
 #
 # -*- coding: utf-8 -*-
@@ -20,7 +20,7 @@ try:
 except ImportError:
     import configparser
 from yokolibs import Helpers
-from yokolibs.Exceptions import Error
+from yokolibs.Exceptions import Error, ErrorDeviceNotFound
 
 SYSTEM_CFG_FILE = "/etc/yokotool.conf"
 USER_CFG_FILE_NAME = ".yokotool.conf"
@@ -102,8 +102,11 @@ def parse_config_files(secname=None, overrides=None):
         _parse_config_file(cfgfile, secname, config)
 
     if not config and paths and secname:
-        raise Error("section '%s' was not found in any for these configuration files:\n* %s" \
-                    % (secname, "\n* ".join(paths)))
+        raise ErrorDeviceNotFound(devnode=secname, paths=paths)
+
+    if not paths:
+        msg = f"no config file present containing device '{secname}'"
+        raise ErrorDeviceNotFound(msg=msg)
 
     if overrides:
         for name in CONFIG_OPTIONS:
